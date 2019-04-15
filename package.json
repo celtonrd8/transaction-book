@@ -184,6 +184,8 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.1.0",
     "@babel/register": "^7.0.0",
+    "@types/exceljs": "^0.5.3",
+    "@types/history": "^4.7.2",
     "@types/jest": "^23.3.11",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
@@ -260,13 +262,17 @@
     "electron-debug": "^2.0.0",
     "electron-log": "^2.2.17",
     "electron-updater": "^4.0.6",
+    "exceljs": "^1.9.0",
     "history": "^4.7.2",
+    "mobx": "^5.9.4",
+    "mobx-react": "^5.4.3",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-hot-loader": "^4.6.3",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "source-map-support": "^0.5.9"
+    "source-map-support": "^0.5.9",
+    "typeorm": "^0.2.16"
   },
   "devEngines": {
     "node": ">=7.x",
