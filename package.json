@@ -266,6 +266,7 @@
     "history": "^4.7.2",
     "mobx": "^5.9.4",
     "mobx-react": "^5.4.3",
+    "mobx-react-router": "^4.0.7",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-hot-loader": "^4.6.3",

@@ -10,6 +10,7 @@
     "pretty": true,
     "sourceMap": true,
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
     "lib": ["es2015", "dom"]
   },
   "exclude": ["node_modules", "**/node_modules/*"]
