@@ -10,10 +10,21 @@ type Props = {
 
 };
 
+type State = {
+  data: any[],
+};
 
 @inject('appStateStore')
 @observer
-export default class ComponentK extends Component<Props> {
+export default class ComponentK extends Component<Props, State> {
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      data: [],
+    }
+  }
 
   public getData = async () => {
     const appStateStore = this.props['appStateStore'] as AppStateStore;
@@ -21,11 +32,16 @@ export default class ComponentK extends Component<Props> {
     const result = await appStateStore.connect.getRepository(User).find();
     result.map((item => {
       console.log(item.sensorName);
-    }))
+    }));
+    if(result) {
+      this.setState({data: result});
+    }
   };
 
   render() {
     const appStateStore = this.props['appStateStore'] as AppStateStore;
+    const { data } = this.state;
+
     return (
       <>
         <h6>React Mobx Test: {appStateStore.counter}</h6>
@@ -33,6 +49,12 @@ export default class ComponentK extends Component<Props> {
         <button onClick={() => appStateStore.downCounter()}>-</button>
 
         <button onClick={this.getData}>data</button>
+
+        { data.map((item, index) => (
+          <div key={index}>{item.sensorName}</div>
+        ))
+
+        }
       </>
     );
   }
