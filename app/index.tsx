@@ -1,8 +1,29 @@
 import * as React from 'react';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
+
+import { createConnection  } from 'typeorm';
+import { User } from './entity/User.entity';
+
 import Root from './Root';
 import './app.global.css';
+
+(async () => {
+  try {
+    console.log('Connection DB... by Default..');
+
+    await createConnection({
+      type: 'sqlite',
+      synchronize: true,
+      logging: true,
+      logger: 'simple-console',
+      database: './database.sqlite',
+      entities: [User],
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
+})();
 
 render(
   <AppContainer>

@@ -2,13 +2,11 @@ import * as React from 'react';
 import { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { AppStateStore } from '../stores/AppStateStore';
-
-// import { getConnection } from "typeorm";
+import { Button } from 'antd';
+import { getConnection } from "typeorm";
 import { User } from "../entity/User.entity";
 
-type Props = {
-
-};
+type Props = { };
 
 type State = {
   data: any[],
@@ -27,9 +25,9 @@ export default class ComponentK extends Component<Props, State> {
   }
 
   public getData = async () => {
-    const appStateStore = this.props['appStateStore'] as AppStateStore;
+    // const appStateStore = this.props['appStateStore'] as AppStateStore;
 
-    const result = await appStateStore.connect.getRepository(User).find();
+    const result = await getConnection().getRepository(User).find();
     result.map((item => {
       console.log(item.sensorName);
     }));
@@ -45,10 +43,10 @@ export default class ComponentK extends Component<Props, State> {
     return (
       <>
         <h6>React Mobx Test: {appStateStore.counter}</h6>
-        <button onClick={() => appStateStore.upCoutner()}>+</button>
-        <button onClick={() => appStateStore.downCounter()}>-</button>
+        <Button type="primary" onClick={() => appStateStore.upCoutner()}>+</Button>
+        <Button type="primary" onClick={() => appStateStore.downCounter()}>-</Button>
 
-        <button onClick={this.getData}>data</button>
+        <Button type="primary" onClick={this.getData}>data</Button>
 
         { data.map((item, index) => (
           <div key={index}>{item.sensorName}</div>
