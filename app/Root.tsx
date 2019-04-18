@@ -6,9 +6,6 @@ import * as History from 'history';
 import { RouterStore, syncHistoryWithStore } from 'mobx-react-router';
 import App from './App';
 
-import { LocaleProvider } from 'antd';
-import ko_KR from 'antd/lib/locale-provider/ko_KR';
-
 const stores = createStores();
 
 const browserHistory = History.createBrowserHistory();
@@ -23,9 +20,7 @@ export default class Root extends Component<Props> {
   render() {
     return (
       <Provider {...stores}>
-        <LocaleProvider locale={ko_KR}>
-          <App history={history} />
-        </LocaleProvider>
+        <App history={history} />
       </Provider>
     );
   }

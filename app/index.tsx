@@ -3,10 +3,12 @@ import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 
 import { createConnection  } from 'typeorm';
-import { User } from './entity/User.entity';
+import { Company, Deposit, Sales } from './entity';
 
 import Root from './Root';
+
 import './app.global.css';
+// import 'semantic-ui-css/semantic.min.css';
 
 (async () => {
   try {
@@ -18,7 +20,7 @@ import './app.global.css';
       logging: true,
       logger: 'simple-console',
       database: './database.sqlite',
-      entities: [User],
+      entities: [Company, Deposit, Sales],
     });
   } catch (e) {
     console.log(e.message);
