@@ -5,10 +5,15 @@ import { DataIoStore } from "../../stores";
 import CompanyList from "./CompanyList";
 import SelectedCompany from "./SelectedCompany";
 import TotalAmount from "./TotalAmount";
-import { MainLayout, LeftSideLayout, RightSideLayout } from "../../styled/styledComponents";
 
-type Props = { }
-type State = { }
+import { MainLayout, LeftSideLayout, RightSideLayout } from "../../styled/styledComponents";
+import { Company } from "../../entity";
+
+interface Props { }
+interface State {
+  companyList: Company[];
+  totalCount: number;
+}
 
 @inject("dataIoStore")
 @observer
@@ -17,7 +22,8 @@ export default class Main extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      CompanyList: [],
+      companyList: [],
+      totalCount: 0,
     }
   }
 
@@ -29,15 +35,25 @@ export default class Main extends React.Component<Props, State> {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     dataIoStore
       .queryCompanyByPage()
-      .then(data => dataIoStore.updateCompanyList(data))
+      .then(data => {
+        this.setState({
+          companyList: data.map((item) => { return {key: item.id.toString(), ...item} }),
+          totalCount: data.length,
+        })
+      })
       .catch(err => console.log(err.message));
   }
 
   render() {
+    const { companyList, totalCount } = this.state;
     return (
       <MainLayout>
         <LeftSideLayout>
-          <CompanyList onReload={this.reloadData} />
+          <CompanyList
+            onReload={this.reloadData}
+            totalCount={totalCount}
+            companyList={companyList}
+          />
         </LeftSideLayout>
 
         <RightSideLayout>

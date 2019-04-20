@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { inject, observer } from "mobx-react";
-import { DataIoStore } from "../../stores";
+// import { inject, observer } from "mobx-react";
+// import { DataIoStore } from "../../stores";
 
 import { Card, Table, Icon, Input, Button, Tooltip } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination'
 import Highlighter from 'react-highlight-words';
 
 import { ScrollableCardContent } from '../../styled/styledComponents';
-// import { Company } from 'app/entity';
+import { Company } from 'app/entity';
 
 const style = {
   cardHeader: {
@@ -22,16 +22,20 @@ const style = {
 
  interface Props {
   onReload: Function;
+  companyList: Company[];
+  totalCount: number;
 }
 
 interface State {
   searchText: string;
   loading: boolean;
   pagination: PaginationConfig;
+  companyList: Company[];
+  totalCount: number;
  }
 
-@inject("dataIoStore")
-@observer
+// @inject("dataIoStore")
+// @observer
 class CompanyList extends React.Component<Props, State> {
 
   private searchInput: Input;
@@ -42,14 +46,27 @@ class CompanyList extends React.Component<Props, State> {
       searchText: '',
       loading: false,
       pagination: {},
+      companyList: [],
+      totalCount: 0,
     }
   }
 
-  componentDidMount() {
-    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.totalCount !== prevState.totalCount) {
+      return {
+        companyList: nextProps.companyList,
+        totalCount: nextProps.totalCount,
+      }
+    }
 
+    return null;
+  }
+
+  componentDidMount() {
+    // const dataIoStore = th is.props['dataIoStore'] as DataIoStore;
+    const { totalCount } = this.state;
     const pagination = { ...this.state.pagination };
-    pagination.total = dataIoStore.getTotalCount();
+    pagination.total = totalCount;
     pagination.showSizeChanger = true;
     pagination.pageSize = 25;
     pagination.pageSizeOptions = ['25', '50', '100'];
@@ -130,9 +147,9 @@ class CompanyList extends React.Component<Props, State> {
   }
 
   render() {
-    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
-    const companyList = dataIoStore.companyList;
-    const { loading, pagination } = this.state;
+    // const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    // const companyList = dataIoStore.companyList;
+    const { loading, pagination, companyList } = this.state;
 
     const columns = [{
       align: 'center' as 'center',
