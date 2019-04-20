@@ -7,9 +7,7 @@ import { Company, Deposit, Sales } from './entity';
 
 import Root from './Root';
 
-import './app.global.css';
-// import 'semantic-ui-css/semantic.min.css';
-
+import './app.global.scss';
 (async () => {
   try {
     console.log('Connection DB... by Default..');

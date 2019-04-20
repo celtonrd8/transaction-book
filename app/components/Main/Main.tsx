@@ -1,22 +1,49 @@
-import * as React from 'react';
-import CompanyList from './CompanyList';
-import SelectedCompany from './SelectedCompany';
-import TotalAmount from './TotalAmount';
+import * as React from "react";
+import { inject, observer } from "mobx-react";
+import { DataIoStore } from "../../stores";
 
-import { MainLayout, CampanyLayout, TotalAmoutLayout } from '../../styled/styledComponents';
+import CompanyList from "./CompanyList";
+import SelectedCompany from "./SelectedCompany";
+import TotalAmount from "./TotalAmount";
+import { MainLayout, LeftSideLayout, RightSideLayout } from "../../styled/styledComponents";
 
-export default class Main extends React.Component<{}, {}> {
+type Props = { }
+type State = { }
+
+@inject("dataIoStore")
+@observer
+export default class Main extends React.Component<Props, State> {
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      CompanyList: [],
+    }
+  }
+
+  componentDidMount() {
+    this.reloadData();
+  }
+
+  reloadData = () => {
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    dataIoStore
+      .queryCompanyByPage()
+      .then(data => dataIoStore.updateCompanyList(data))
+      .catch(err => console.log(err.message));
+  }
 
   render() {
     return (
       <MainLayout>
-        <CampanyLayout>
-          <CompanyList />
+        <LeftSideLayout>
+          <CompanyList onReload={this.reloadData} />
+        </LeftSideLayout>
+
+        <RightSideLayout>
           <SelectedCompany />
-        </CampanyLayout>
-        <TotalAmoutLayout>
           <TotalAmount />
-        </TotalAmoutLayout>
+        </RightSideLayout>
 
       </MainLayout>
     );

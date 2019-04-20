@@ -24,6 +24,7 @@ export default class App extends Component<Props> {
         <Router history={history}>
           <Switch>
             <Route path='/' component={MainContainer}/>
+            {/* <Route exact={true} path='/main' component={MainContainer}/> */}
           </Switch>
         </Router>
       </div>

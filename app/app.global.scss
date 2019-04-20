@@ -4,8 +4,9 @@
  */
 
 @import '~@fortawesome/fontawesome-free/css/all.css';
-@import '~semantic-ui-css/semantic.min.css';
 @import '~spoqa-han-sans/css/SpoqaHanSans-kr.css';
+
+@import '~antd/dist/antd.css';
 
 html,
 body {
@@ -26,4 +27,26 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-y: hidden;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f180;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.35);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(85, 85, 85, 0.25);
 }
