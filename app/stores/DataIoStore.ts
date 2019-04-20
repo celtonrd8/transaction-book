@@ -1,29 +1,26 @@
-// import { observable, action } from 'mobx';
+import { observable, action } from 'mobx';
 import { getConnection } from "typeorm";
 import { Company } from "../entity";
 
 export class DataIoStore {
 
-  // @observable
-  // companyList: Company[] = [];
+  @observable
+  companyList: Company[] = [];
 
-  // private _totalCount: number;
+  @observable
+  totalCount: number = 0;
 
-  // @action
-  // public updateCompanyList = (companyList: Company[]) => {
-  //   this.setTotalCount(companyList.length);
-
-  //   this.companyList = companyList.map((item, index) => {
-  //     console.log(item);
-  //     return {
-  //       key: index.toString(),
-  //       ...item,
-  //     }
-  //   });
-  // }
-
-  // public setTotalCount = (count: number) => this._totalCount = count;
-  // public getTotalCount = () => this._totalCount;
+  @action
+  public updateCompanyList = (companyList: Company[]) => {
+    this.totalCount = companyList.length;
+    this.companyList = companyList.map((item) => {
+      console.log(item);
+      return {
+        key: item.id.toString(),
+        ...item,
+      }
+    });
+  }
 
   public queryCompanyByPage = async () => {
     try {
@@ -33,6 +30,16 @@ export class DataIoStore {
         .leftJoinAndSelect("company.salesList", "salesList")
         .leftJoinAndSelect("company.depositList", "depositList")
         .getMany();
+    } catch(e) {
+      throw e;
+    }
+  }
+
+  public queryDeleteCompany = async(id: number) => {
+    try {
+      return await getConnection()
+        .getRepository(Company)
+        .delete({id: id});
     } catch(e) {
       throw e;
     }

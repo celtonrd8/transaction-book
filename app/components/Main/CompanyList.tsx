@@ -1,13 +1,14 @@
 import * as React from 'react';
-// import { inject, observer } from "mobx-react";
-// import { DataIoStore } from "../../stores";
-
-import { Card, Table, Icon, Input, Button, Tooltip } from 'antd';
+import { inject, observer } from "mobx-react";
+import { DataIoStore } from "../../stores";
+import { Card, Table, Icon, Input, Button, Tooltip, Modal } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination'
 import Highlighter from 'react-highlight-words';
-
 import { ScrollableCardContent } from '../../styled/styledComponents';
 import { Company } from 'app/entity';
+import AddCompanyDialog from './Dialogs/AddCompanyDialog';
+
+const confirm = Modal.confirm;
 
 const style = {
   cardHeader: {
@@ -21,21 +22,17 @@ const style = {
 }
 
  interface Props {
-  onReload: Function;
-  companyList: Company[];
-  totalCount: number;
+  reload: Function;
 }
 
 interface State {
   searchText: string;
-  loading: boolean;
   pagination: PaginationConfig;
-  companyList: Company[];
-  totalCount: number;
+  isAddCompanyDialog: boolean;
  }
 
-// @inject("dataIoStore")
-// @observer
+@inject("dataIoStore")
+@observer
 class CompanyList extends React.Component<Props, State> {
 
   private searchInput: Input;
@@ -44,29 +41,15 @@ class CompanyList extends React.Component<Props, State> {
     super(props);
     this.state = {
       searchText: '',
-      loading: false,
       pagination: {},
-      companyList: [],
-      totalCount: 0,
+      isAddCompanyDialog: false,
     }
-  }
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.totalCount !== prevState.totalCount) {
-      return {
-        companyList: nextProps.companyList,
-        totalCount: nextProps.totalCount,
-      }
-    }
-
-    return null;
   }
 
   componentDidMount() {
-    // const dataIoStore = th is.props['dataIoStore'] as DataIoStore;
-    const { totalCount } = this.state;
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const pagination = { ...this.state.pagination };
-    pagination.total = totalCount;
+    pagination.total = dataIoStore.totalCount;
     pagination.showSizeChanger = true;
     pagination.pageSize = 25;
     pagination.pageSizeOptions = ['25', '50', '100'];
@@ -137,19 +120,46 @@ class CompanyList extends React.Component<Props, State> {
     // pager.current = pagination.current;
     // pager.total = dataIoStore.getTotalCount();
     // this.setState({ pagination: pager });
-
     // console.log(pagination);
     // console.log(filters);
     // console.log(sorter);
   }
 
-  reload = () => {
+  openAddCompanyDialog = () => { this.setState({isAddCompanyDialog: true}) };
+  closeAddCompanyDialog = () => { this.setState({isAddCompanyDialog: false}) };
+
+  addCompany = () => {
+
+  }
+
+  deleteCompanyConfirm = (record: Company) => {
+    console.log(record);
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    const { reload } = this.props;
+    confirm({
+      title: "업체 삭제",
+      content: "등록된 업체가 삭제 됩니다?",
+      onOk() {
+        return new Promise((resolve, reject) => {
+          // setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+          dataIoStore
+            .queryDeleteCompany(record.id)
+            .then(() => {
+              reload();
+              resolve();
+            })
+            .catch(() => reject());
+        }).catch(() => console.log('Oops errors!'));
+      },
+      onCancel() {},
+    })
   }
 
   render() {
-    // const dataIoStore = this.props['dataIoStore'] as DataIoStore;
-    // const companyList = dataIoStore.companyList;
-    const { loading, pagination, companyList } = this.state;
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    const companyList = dataIoStore.companyList;
+
+    const { pagination, isAddCompanyDialog } = this.state;
 
     const columns = [{
       align: 'center' as 'center',
@@ -190,7 +200,7 @@ class CompanyList extends React.Component<Props, State> {
       title: "메모",
       render: (text: string) => (
         <Tooltip placement="topLeft" title={text}>
-          {text.length > 10 ? `${text.substring(0, 6)}...` : text}
+          {text.length > 6 ? `${text.substring(0, 6)}..` : text}
           { (text.length > 0) &&
             <Icon type="zoom-in" style={{marginLeft: '.5rem'}} />
           }
@@ -200,7 +210,7 @@ class CompanyList extends React.Component<Props, State> {
       align: 'center' as 'center',
       title: "관리",
       key: "operation",
-      render: (record) => (
+      render: (record: Company) => (
         <span>
           <Button
             ghost
@@ -215,7 +225,7 @@ class CompanyList extends React.Component<Props, State> {
             size="small"
             type="danger"
             style={{ marginLeft: '0.5rem' }}
-            onClick={() => console.log(record)}
+            onClick={() => this.deleteCompanyConfirm(record)}
           >
             삭제
           </Button>
@@ -236,6 +246,7 @@ class CompanyList extends React.Component<Props, State> {
                 shape="circle"
                 icon="plus"
                 size={'default'}
+                onClick={this.openAddCompanyDialog}
               />
               <Button
                 type="primary"
@@ -252,13 +263,19 @@ class CompanyList extends React.Component<Props, State> {
               size="middle"
               columns={columns}
               dataSource={companyList}
-              loading={loading}
               pagination={pagination}
               onChange={this.handleTableChange}
               className="table"
             />
           </ScrollableCardContent>
         </Card>
+
+        <AddCompanyDialog
+          title="업체 추가 하기"
+          visible={isAddCompanyDialog}
+          addCompany={this.addCompany}
+          close={this.closeAddCompanyDialog}
+        />
 
         <style>{`
           .table {
@@ -278,3 +295,4 @@ class CompanyList extends React.Component<Props, State> {
 }
 
 export default CompanyList;
+

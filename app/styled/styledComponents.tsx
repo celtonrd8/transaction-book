@@ -48,7 +48,7 @@ export const RightSideLayout = styled.div`
 `
 export const ScrollableCardContent = styled.div`
   /* padding: 1rem; */
-  min-height: 700px;
-  max-height: 750px;
+  /* min-height: 700px; */
+  max-height: calc(100vh - 168px);
   overflow-y: auto;
 `;
