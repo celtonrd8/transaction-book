@@ -3,7 +3,7 @@ import { Component } from 'react';
 import { Router, Route, Switch } from 'react-router-dom';
 // import { inject, observer } from 'mobx-react';
 import { History } from 'history';
-// import { RouterStore } from 'mobx-react-router';
+
 import { AppBar } from './components/AppBar';
 import { MainContainer } from './containers';
 

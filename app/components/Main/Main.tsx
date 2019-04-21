@@ -4,7 +4,6 @@ import { DataIoStore } from "../../stores";
 import CompanyList from "./CompanyList";
 import SelectedCompany from "./SelectedCompany";
 import TotalAmount from "./TotalAmount";
-import { MainLayout, LeftSideLayout, RightSideLayout } from "../../styled/styledComponents";
 
 interface Props { }
 interface State { }
@@ -32,17 +31,42 @@ export default class Main extends React.Component<Props, State> {
 
   render() {
     return (
-      <MainLayout>
-        <LeftSideLayout>
-          <CompanyList reload={this.reloadData} />
-        </LeftSideLayout>
+      <>
+        <div className="mainLayout">
+          <div className="leftSideLayout">
+            <CompanyList reload={this.reloadData} />
+          </div>
+          <div className="rightSideLayout">
+            <SelectedCompany />
 
-        <RightSideLayout>
-          <SelectedCompany />
-          <TotalAmount />
-        </RightSideLayout>
+            <div className="totalAmount">
+            <TotalAmount />
+            </div>
+          </div>
+        </div>
 
-      </MainLayout>
+        <style>{`
+          .mainLayout {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+          }
+          .leftSideLayout {
+            flex: 0.65;
+            padding: 0.5rem;
+          }
+          .rightSideLayout {
+            flex: 0.35;
+            padding: 0.5rem 0.5rem 0.5rem 0;
+          }
+          .totalAmount {
+            padding-top: 0.5rem;
+          }
+        `}
+        </style>
+      </>
+
     );
   }
 }

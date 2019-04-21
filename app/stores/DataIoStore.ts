@@ -10,6 +10,9 @@ export class DataIoStore {
   @observable
   totalCount: number = 0;
 
+  @observable
+  selectedComapnyId: number = 0;
+
   @action
   public updateCompanyList = (companyList: Company[]) => {
     this.totalCount = companyList.length;
@@ -20,6 +23,11 @@ export class DataIoStore {
         ...item,
       }
     });
+  }
+
+  @action
+  public setSelectedComapnyId = (id: number) => {
+    this.selectedComapnyId = id;
   }
 
   public queryCompanyByPage = async () => {

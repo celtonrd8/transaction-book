@@ -4,8 +4,7 @@ import { DataIoStore } from "../../stores";
 import { Card, Table, Icon, Input, Button, Tooltip, Modal } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination'
 import Highlighter from 'react-highlight-words';
-import { ScrollableCardContent } from '../../styled/styledComponents';
-import { Company } from 'app/entity';
+import { Company } from '../../entity';
 import AddCompanyDialog from './Dialogs/AddCompanyDialog';
 
 const confirm = Modal.confirm;
@@ -13,11 +12,7 @@ const confirm = Modal.confirm;
 const style = {
   cardHeader: {
     padding: 0,
-  },
-  table: {
-    marginLeft: '-3rem',
-    marginTop: '-2rem',
-    marginRight: '1rem'
+    paddingLeft: "1rem",
   },
 }
 
@@ -115,16 +110,6 @@ class CompanyList extends React.Component<Props, State> {
     this.setState({ searchText: '' });
   }
 
-  handleTableChange = (pagination, filters, sorter) => {
-    // const pager = { ...this.state.pagination };
-    // pager.current = pagination.current;
-    // pager.total = dataIoStore.getTotalCount();
-    // this.setState({ pagination: pager });
-    // console.log(pagination);
-    // console.log(filters);
-    // console.log(sorter);
-  }
-
   openAddCompanyDialog = () => { this.setState({isAddCompanyDialog: true}) };
   closeAddCompanyDialog = () => { this.setState({isAddCompanyDialog: false}) };
 
@@ -155,6 +140,11 @@ class CompanyList extends React.Component<Props, State> {
     })
   }
 
+  selectCompany = (record: Company) => {
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    dataIoStore.setSelectedComapnyId(record.id);
+  }
+
   render() {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const companyList = dataIoStore.companyList;
@@ -166,6 +156,17 @@ class CompanyList extends React.Component<Props, State> {
       dataIndex: "companyName",
       title: "업체명",
       ...this.getColumnSearchProps('companyName'),
+      render: (text: string, record: Company) => (
+        <span>
+          <Button
+            size="small"
+            onClick={() => this.selectCompany(record)}
+            style={{border: 'none'}}
+          >
+            {text}<Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
+          </Button>
+        </span>
+      )
     }, {
       align: 'center' as 'center',
       dataIndex: "transactionState",
@@ -258,16 +259,14 @@ class CompanyList extends React.Component<Props, State> {
             </div>
           }
         >
-          <ScrollableCardContent>
+          <div className="scrollControl">
             <Table
               size="middle"
               columns={columns}
               dataSource={companyList}
               pagination={pagination}
-              onChange={this.handleTableChange}
-              className="table"
             />
-          </ScrollableCardContent>
+          </div>
         </Card>
 
         <AddCompanyDialog
@@ -278,14 +277,15 @@ class CompanyList extends React.Component<Props, State> {
         />
 
         <style>{`
-          .table {
-            margin: -2rem 1rem 0 -3rem;
-          }
           .cardHeaderExtra {
             margin-right: 1rem;
             display: flex;
             flex-direction: row;
             justify-content: flex-end;
+          }
+          .scrollControl {
+            height: calc(100vh - 195px);
+            overflow-y: auto;
           }
         `}
         </style>

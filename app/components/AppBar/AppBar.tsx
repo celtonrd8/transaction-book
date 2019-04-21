@@ -1,8 +1,9 @@
 import * as React from 'react';
-
-import { Layout, Menu } from 'antd';
+// import { inject, observer } from 'mobx-react';
+import { Layout } from 'antd';
 // import { Typo } from '../../styled/styledComponents';
 // import styled from 'styled-components';
+// import { RouterStore } from 'mobx-react-router';
 
 type Props = { };
 
@@ -10,18 +11,8 @@ type State = { };
 
 const { Header } = Layout;
 
-// const styles = {
-//   menu: {
-//     // backgroundColor: '#1b1c1d',
-//   },
-//   dropdown: {
-//     // color: 'white',
-//   },
-//   title: {
-//     marginLeft: '1rem',
-//   }
-// }
-
+// @inject('routingStore')
+// @observer
 export default class AppBar extends React.Component<Props, State> {
 
   constructor(props: Props) {
@@ -29,20 +20,52 @@ export default class AppBar extends React.Component<Props, State> {
   }
 
   render() {
+    // const routingStore = this.props['routingStore'] as RouterStore;
     return (
       <Layout className="layout">
         <Header>
-          <div className="logo" />
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            defaultSelectedKeys={['2']}
-            style={{ lineHeight: '64px' }}
-          >
-            <Menu.Item key="1">nav 1</Menu.Item>
-            <Menu.Item key="2">nav 2</Menu.Item>
-            <Menu.Item key="3">nav 3</Menu.Item>
-          </Menu>
+          {
+          // <Button
+          //   onClick={() => {
+          //     routingStore.history.push('/main');
+          //     console.log(routingStore);
+          //   }}
+          // >
+          //   Main
+          // </Button>
+          // <Button
+          //   onClick={() => {
+          //     routingStore.history.push('test');
+          //     console.log(routingStore);
+          //   }}
+          // >
+          //   Test
+          // </Button>
+
+          // <Menu
+          //   theme="dark"
+          //   mode="horizontal"
+          //   defaultSelectedKeys={['2']}
+          //   style={{ lineHeight: '64px' }}
+          // >
+          //   <Menu.Item
+          //     key="1"
+          //     onClick={() => {
+          //       routingStore.history.push('/test');
+          //       console.log(routingStore);
+          //     }}
+          //   >
+          //     nav 1
+          //   </Menu.Item>
+          //   <Menu.Item
+          //     key="2"
+          //     onClick={() => routingStore.history.push('/')}
+          //   >
+          //     nav 2
+          //   </Menu.Item>
+          //   <Menu.Item key="3">nav 3</Menu.Item>
+          // </Menu>
+          }
         </Header>
       </Layout>
     );
