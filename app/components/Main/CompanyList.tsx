@@ -242,20 +242,24 @@ class CompanyList extends React.Component<Props, State> {
           headStyle={style.cardHeader}
           extra={
             <div className="cardHeaderExtra">
-              <Button
-                type="primary"
-                shape="circle"
-                icon="plus"
-                size={'default'}
-                onClick={this.openAddCompanyDialog}
-              />
-              <Button
-                type="primary"
-                shape="circle"
-                icon="download"
-                size={'default'}
-                style={{marginLeft: '.5rem'}}
-              />
+              <Tooltip placement="bottomLeft" title="업체 추가">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon="plus"
+                  size={'default'}
+                  onClick={this.openAddCompanyDialog}
+                />
+              </Tooltip>
+              <Tooltip placement="bottomLeft" title="엑셀파일 출력">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon="download"
+                  size={'default'}
+                  style={{marginLeft: '.5rem'}}
+                />
+              </Tooltip>
             </div>
           }
         >
@@ -270,7 +274,7 @@ class CompanyList extends React.Component<Props, State> {
         </Card>
 
         <AddCompanyDialog
-          title="업체 추가 하기"
+          title="업체 추가"
           visible={isAddCompanyDialog}
           addCompany={this.addCompany}
           close={this.closeAddCompanyDialog}

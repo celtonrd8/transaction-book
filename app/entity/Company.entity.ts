@@ -32,22 +32,22 @@ export class Company {
   @OneToMany(type => Deposit, deposit => deposit.company)
   public depositList: Deposit[];
 
-  @Column({type: "varchar", length: 64, default: "" })
+  @Column({type: "varchar", default: "" })
   public companyName: string;
 
-  @Column({type: "varchar", length: 64, default: "ON" })
+  @Column({type: "varchar", default: "ON" })
   public transactionState: string;
 
-  @Column({type: "varchar", length: 64, default: ""})
+  @Column({type: "varchar", default: ""})
   public accountNumber: string;
 
-  @Column({type: "varchar", length: 32, default: ""})
+  @Column({type: "varchar", default: ""})
   public phone: string;
 
-  @Column({type: "varchar", length: 32, default: ""})
+  @Column({type: "varchar", default: ""})
   public depositDate: string;
 
-  @Column({type: "varchar", length: 128, default: ""})
+  @Column({type: "varchar", default: ""})
   public memo: string;
 
 }
