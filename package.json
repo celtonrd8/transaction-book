@@ -280,7 +280,6 @@
     "spoqa-han-sans": "^2.1.2",
     "sqlite3": "4.0.6",
     "styled-components": "^4.2.0",
-    "styled-jsx": "^3.2.1",
     "typeorm": "^0.2.16"
   },
   "devEngines": {

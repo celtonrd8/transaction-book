@@ -31,7 +31,6 @@ module.exports = api => {
       [require('@babel/preset-react'), { development }]
     ],
     plugins: [
-      "styled-jsx/babel",
       // Stage 0
       require('@babel/plugin-proposal-function-bind'),
 

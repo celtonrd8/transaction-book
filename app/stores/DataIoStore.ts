@@ -14,7 +14,7 @@ export class DataIoStore {
   selectedComapnyId: number = 0;
 
   @action
-  public updateCompanyList = (companyList: Company[]) => {
+  private _updateCompanyList = (companyList: Company[]) => {
     this.totalCount = companyList.length;
     this.companyList = companyList.map((item) => {
       console.log(item);
@@ -32,12 +32,18 @@ export class DataIoStore {
 
   public queryCompanyByPage = async () => {
     try {
-      return await getConnection()
+      const result = await getConnection()
         .getRepository(Company)
         .createQueryBuilder("company")
         .leftJoinAndSelect("company.salesList", "salesList")
         .leftJoinAndSelect("company.depositList", "depositList")
         .getMany();
+
+      if (result) {
+        this._updateCompanyList(result);
+        console.log(result);
+        return result;
+      }
     } catch(e) {
       throw e;
     }
@@ -48,6 +54,17 @@ export class DataIoStore {
       return await getConnection()
         .getRepository(Company)
         .delete({id: id});
+    } catch(e) {
+      throw e;
+    }
+  }
+
+  public queryAddComapny = async(value: Company) => {
+    // console.log(value)
+    try {
+      return await getConnection()
+        .getRepository(Company)
+        .save(value);
     } catch(e) {
       throw e;
     }

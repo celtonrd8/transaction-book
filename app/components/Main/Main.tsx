@@ -18,55 +18,27 @@ export default class Main extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    this.reloadData();
-  }
-
-  reloadData = () => {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     dataIoStore
-      .queryCompanyByPage()
-      .then(data => { dataIoStore.updateCompanyList(data) })
+      .queryCompanyByPage().then()
       .catch(err => console.log(err.message));
   }
 
   render() {
     return (
       <>
-        <div className="mainLayout">
-          <div className="leftSideLayout">
-            <CompanyList reload={this.reloadData} />
+        <div className="mainRootLayout">
+          <div className="mainLeftSideLayout">
+            <CompanyList />
           </div>
-          <div className="rightSideLayout">
+          <div className="mainRightSideLayout">
             <SelectedCompany />
-
-            <div className="totalAmount">
+            <div className="mainTotalAmount">
             <TotalAmount />
             </div>
           </div>
         </div>
-
-        <style>{`
-          .mainLayout {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row;
-          }
-          .leftSideLayout {
-            flex: 0.65;
-            padding: 0.5rem;
-          }
-          .rightSideLayout {
-            flex: 0.35;
-            padding: 0.5rem 0.5rem 0.5rem 0;
-          }
-          .totalAmount {
-            padding-top: 0.5rem;
-          }
-        `}
-        </style>
       </>
-
     );
   }
 }

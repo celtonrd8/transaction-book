@@ -1,0 +1,47 @@
+.mainRootLayout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.mainLeftSideLayout {
+  flex: 0.65;
+  padding: 0.5rem;
+}
+.mainRightSideLayout {
+  flex: 0.35;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+}
+.mainTotalAmount {
+  padding-top: 0.5rem;
+}
+
+.clCompanyLink {
+  color: #0984e3;
+  &:hover {
+    color: black;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}
+
+.clCardHeaderExtra {
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.clScrollControl {
+  height: calc(100vh - 195px);
+  overflow-y: auto;
+}
+
+.acdFooter {
+  width: 100%;
+  padding-right: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}

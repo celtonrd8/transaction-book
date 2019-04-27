@@ -1,45 +1,75 @@
 import * as React from 'react';
 import { inject, observer } from 'mobx-react';
 import { DataIoStore } from '../../stores';
-import { CRow, CColumn } from '../../styled/styledComponents';
 import { Card, Typography, Tabs, Table, Button, Tooltip } from 'antd';
 import { Sales, Deposit } from '../../entity';
-
+import { toCurrency } from '../../utils';
+import { CRow, CColumn } from '../../styled';
 // import SelectedSales from './SelectedSales';
 // import SlectedDeposit from './SlectedDeposit';
 
 const { Text } = Typography;
 const TabPane = Tabs.TabPane;
 
-const styles = {
-  cardHeader: {
-    paddingLeft: '1rem',
-  },
+const cardHeaderSt: React.CSSProperties = {
+  padding: 0,
+  paddingLeft: '1rem',
 }
 
-interface Props {}
-interface State {}
+interface Props {
+}
+
+interface State {
+}
 
 @inject('dataIoStore')
 @observer
-export default class SelectedCompany extends React.Component<Props, State> {
+class SelectedCompany extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
   }
 
-  render() {
+  componentDidMount () {
+  }
+
+  addItem = () => {
+  }
+
+  getSelectedCompanyData = () => {
+    console.log('getSelectedCompanyData');
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const comapnyList = dataIoStore.companyList;
     const selectedComapnyId = dataIoStore.selectedComapnyId;
+    let sumAllSales = 0;
+    let sumAllDeposit = 0;
+
     const selectedCompany = comapnyList.find((item) => item.id === selectedComapnyId);
+
+    selectedCompany && (selectedCompany.salesList || []).map((item: Sales) => {
+      sumAllSales += item.totalAmount;
+    });
+
+    selectedCompany && (selectedCompany.depositList || []).map((item: Deposit) => {
+      sumAllDeposit += item.balanceAmount;
+    });
+    return {
+      selectedCompany: selectedCompany,
+      selectedCompanyId: selectedComapnyId,
+      sumAllSales: sumAllSales,
+      sumAllDeposit: sumAllDeposit,
+    }
+  }
+
+  render() {
+    const { selectedCompany, selectedCompanyId, sumAllSales, sumAllDeposit } = this.getSelectedCompanyData();
 
     return (
       <>
         <Card
           title='거래 입금 내역서(업체별)'
           bordered={true}
-          headStyle={styles.cardHeader}
+          headStyle={cardHeaderSt}
           extra={
             <div className='cardHeaderExtra'>
               <Tooltip placement='bottomLeft' title='거래/입금액 추가'>
@@ -48,6 +78,7 @@ export default class SelectedCompany extends React.Component<Props, State> {
                   shape='circle'
                   icon='plus'
                   size='default'
+                  onClick={this.addItem}
                 />
               </Tooltip>
               <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
@@ -62,7 +93,7 @@ export default class SelectedCompany extends React.Component<Props, State> {
             </div>
           }
         >
-          { selectedComapnyId > 0 ? (
+          { selectedCompanyId > 0 ? (
             <>
               <CRow style={{marginTop: '1rem'}}>
                 <CColumn>
@@ -85,6 +116,7 @@ export default class SelectedCompany extends React.Component<Props, State> {
                     <div>
                     <Table
                       size='small'
+                      rowKey='salesKey'
                       pagination={false}
                       columns={[
                         { align: 'center' as 'center', dataIndex: 'date', title: '발행일' },
@@ -96,9 +128,9 @@ export default class SelectedCompany extends React.Component<Props, State> {
                         console.log(item);
                         return {
                           date: `${item.year}년 ${item.month}월 ${item.day}일`,
-                          supplyAmount: item.supplyAmount,
-                          taxAmount: item.taxAmount,
-                          totalAmount: item.totalAmount,
+                          supplyAmount: `${toCurrency(item.supplyAmount)}원`,
+                          taxAmount: `${toCurrency(item.taxAmount)}원`,
+                          totalAmount: `${toCurrency(item.totalAmount)}원`,
                         }
                       })}
                     />
@@ -108,6 +140,7 @@ export default class SelectedCompany extends React.Component<Props, State> {
                     <div>
                       <Table
                         size='small'
+                        rowKey='depositKey'
                         pagination={false}
                         columns={[
                           { align: 'center' as 'center', dataIndex: 'date', title: '입금일' },
@@ -119,8 +152,8 @@ export default class SelectedCompany extends React.Component<Props, State> {
                           return {
                             date: `${item.year}년 ${item.month}월 ${item.day}일`,
                             originMonth: item.originMonth,
-                            depositAmount: item.depositAmount,
-                            balanceAmount: item.balanceAmount,
+                            depositAmount: `${toCurrency(item.depositAmount)}원`,
+                            balanceAmount: `${toCurrency(item.balanceAmount)}원`,
                           }
                         })}
                       />
@@ -129,17 +162,17 @@ export default class SelectedCompany extends React.Component<Props, State> {
                 </Tabs>
               </div>
 
-              <CRow style={{marginTop: '1rem'}}>
-                <CColumn>
-                  <Text>거래 총액:000</Text>
+              <CRow left style={{marginTop: '2rem'}}>
+                <CColumn hover left>
+                  <Text strong>거래 총액: {toCurrency(sumAllSales)}원</Text>
                 </CColumn>
-                <CColumn>
-                  <Text>입금 총액:000</Text>
+                <CColumn hover left>
+                  <Text strong>입금 총액: {toCurrency(sumAllDeposit)}원</Text>
                 </CColumn>
               </CRow>
-              <CRow style={{marginTop: '1rem'}}>
-                <CColumn>
-                  <Text>미수금 총액:000</Text>
+              <CRow left hover style={{marginTop: '1rem'}}>
+                <CColumn hober left>
+                  <Text strong>미수금 총액: {toCurrency(sumAllDeposit - sumAllSales)}원</Text>
                 </CColumn>
               </CRow>
             </>
@@ -151,16 +184,9 @@ export default class SelectedCompany extends React.Component<Props, State> {
             </CRow>
           )}
         </Card>
-        <style>{`
-          .cardHeaderExtra {
-            margin-right: 1rem;
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-end;
-          }
-        `}
-        </style>
       </>
     );
   }
 }
+
+export default SelectedCompany;
