@@ -1,12 +1,13 @@
 import * as React from 'react';
 // import { inject, observer } from 'mobx-react';
-import { Layout } from 'antd';
+import { Layout, Typography } from 'antd';
 // import { Typo } from '../../styled/styledComponents';
 // import styled from 'styled-components';
 // import { RouterStore } from 'mobx-react-router';
 
-type Props = { };
+const { Title } = Typography;
 
+type Props = { };
 type State = { };
 
 const { Header } = Layout;
@@ -24,6 +25,9 @@ export default class AppBar extends React.Component<Props, State> {
     return (
       <Layout className="layout">
         <Header>
+          <div className="abHeaderTitle">
+            <Title level={4} style={{color: 'white', marginTop: '0.25rem'}}>Transaction Book</Title>
+          </div>
           {
           // <Button
           //   onClick={() => {

@@ -17,9 +17,10 @@ export const CColumn = styled.div`
   flex-direction: row;
   justify-content: ${props => props.left ? 'flex-start' : 'center'};
   align-items: center;
-  padding-left: .5rem;
-  border-left: ${props => props.hover ? '3px solid transparent' : null};
+  padding-bottom: 0.25rem;
+  padding-left: 1rem;
+  border-left: ${props => props.hover ? '3px solid #84817a' : null};
   &:hover {
-    border-left: ${props => props.hover ? '3px solid #2c3e50' : null};
+    border-left: ${props => props.hover ? '3px solid #33d9b2' : null};
   }
 `

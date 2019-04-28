@@ -1,25 +1,27 @@
 import * as React from 'react';
 import { inject, observer } from 'mobx-react';
 import { DataIoStore } from '../../stores';
-import { Card, Typography, Tabs, Table, Button, Tooltip } from 'antd';
+import { Card, Typography, Tabs, Table, Button, Tooltip, Modal } from 'antd';
 import { Sales, Deposit } from '../../entity';
 import { toCurrency } from '../../utils';
 import { CRow, CColumn } from '../../styled';
-// import SelectedSales from './SelectedSales';
-// import SlectedDeposit from './SlectedDeposit';
+import SalesDialog from './Dialogs/SalesDialog';
+import DepositDialog from './Dialogs/DepositDialog';
 
 const { Text } = Typography;
 const TabPane = Tabs.TabPane;
+const confirm = Modal.confirm;
 
 const cardHeaderSt: React.CSSProperties = {
-  padding: 0,
-  paddingLeft: '1rem',
+  padding: '0 1rem 0 1rem',
 }
 
 interface Props {
 }
 
 interface State {
+  isDepositDialog: boolean;
+  isSalesDialog: boolean;
 }
 
 @inject('dataIoStore')
@@ -28,13 +30,19 @@ class SelectedCompany extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    this.state = {
+      isSalesDialog: false,
+      isDepositDialog: false,
+    }
   }
 
-  componentDidMount () {
-  }
+  componentDidMount () { }
 
-  addItem = () => {
-  }
+  addItem = () => { }
+  openSalesDialog = () => { this.setState({ isSalesDialog: true }) }
+  closeSalesDialog = () => { this.setState({ isSalesDialog: false }) }
+  openDepositDialog = () => { this.setState({ isDepositDialog: true }) }
+  closeDepositDialog = () => { this.setState({ isDepositDialog: false })}
 
   getSelectedCompanyData = () => {
     console.log('getSelectedCompanyData');
@@ -51,7 +59,7 @@ class SelectedCompany extends React.Component<Props, State> {
     });
 
     selectedCompany && (selectedCompany.depositList || []).map((item: Deposit) => {
-      sumAllDeposit += item.balanceAmount;
+      sumAllDeposit += item.depositAmount;
     });
     return {
       selectedCompany: selectedCompany,
@@ -61,8 +69,58 @@ class SelectedCompany extends React.Component<Props, State> {
     }
   }
 
+
+  deleteSalesConfirm = (record: Sales) => {
+    console.log(record);
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    confirm({
+      title: '거래액 삭제',
+      content: '등록된 거래액이 삭제 됩니다?',
+      onOk() {
+        return new Promise((resolve, reject) => {
+          dataIoStore
+            .queryDeleteSalesAmount(record.id)
+            .then(() => {
+              dataIoStore
+                .queryCompanyByPage()
+                .then()
+                .catch(err => {throw err});
+              resolve();
+            })
+            .catch(() => reject());
+        }).catch(() => console.log('Oops errors!'));
+      },
+      onCancel() {},
+    });
+  }
+
+  deleteDepositConfirm = (record: Deposit) => {
+    console.log(record);
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    confirm({
+      title: '입금액 삭제',
+      content: '등록된 입금액이 삭제 됩니다?',
+      onOk() {
+        return new Promise((resolve, reject) => {
+          dataIoStore
+            .queryDeleteDepositAmount(record.id)
+            .then(() => {
+              dataIoStore
+                .queryCompanyByPage()
+                .then()
+                .catch(err => {throw err});
+              resolve();
+            })
+            .catch(() => reject());
+        }).catch(() => console.log('Oops errors!'));
+      },
+      onCancel() {},
+    });
+  }
+
   render() {
     const { selectedCompany, selectedCompanyId, sumAllSales, sumAllDeposit } = this.getSelectedCompanyData();
+    const { isSalesDialog, isDepositDialog } = this.state;
 
     return (
       <>
@@ -72,30 +130,35 @@ class SelectedCompany extends React.Component<Props, State> {
           headStyle={cardHeaderSt}
           extra={
             <div className='cardHeaderExtra'>
-              <Tooltip placement='bottomLeft' title='거래/입금액 추가'>
+              <Tooltip placement='bottomLeft' title='거래액 추가'>
                 <Button
                   type='primary'
                   shape='circle'
-                  icon='plus'
+                  icon='rise'
                   size='default'
-                  onClick={this.addItem}
+                  disabled={selectedCompanyId > 0 ? false : true }
+                  onClick={this.openSalesDialog}
                 />
               </Tooltip>
-              <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
+              <Tooltip placement='bottomLeft' title='입금액 추가'>
                 <Button
                   type='primary'
                   shape='circle'
-                  icon='download'
+                  icon='credit-card'
                   size='default'
-                  style={{marginLeft: '.5rem'}}
-                />
+                  disabled={selectedCompanyId > 0 ? false : true }
+                  onClick={this.openDepositDialog}
+                  style={{marginLeft: '.5rem'}} />
+              </Tooltip>
+              <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
+                <Button type='primary' shape='circle' icon='download' size='default' style={{marginLeft: '.5rem'}} />
               </Tooltip>
             </div>
           }
         >
           { selectedCompanyId > 0 ? (
             <>
-              <CRow style={{marginTop: '1rem'}}>
+              <CRow style={{marginTop: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #1890ff'}}>
                 <CColumn>
                   <Text>통장: {selectedCompany && selectedCompany.accountNumber}</Text>
                 </CColumn>
@@ -113,20 +176,45 @@ class SelectedCompany extends React.Component<Props, State> {
               <div>
                 <Tabs defaultActiveKey='1' animated={false} style={{flex: 1}}>
                   <TabPane tab='거래총액' key='1'>
-                    <div>
+                    <div className="scScrollControl">
                     <Table
                       size='small'
-                      rowKey='salesKey'
+                      rowKey={record => record.key}
                       pagination={false}
                       columns={[
-                        { align: 'center' as 'center', dataIndex: 'date', title: '발행일' },
-                        { align: 'center' as 'center', dataIndex: 'supplyAmount', title: '공급액' },
-                        { align: 'center' as 'center', dataIndex: 'taxAmount', title: '세액' },
-                        { align: 'center' as 'center', dataIndex: 'totalAmount', title: '총액' },
+                        { align: 'center' as 'center', dataIndex: 'date', title: '발행일', key: 'date' },
+                        { align: 'center' as 'center', dataIndex: 'supplyAmount', title: '공급액', key: 'supplyAmount' },
+                        { align: 'center' as 'center', dataIndex: 'taxAmount', title: '세액', key: 'taxAmount' },
+                        { align: 'center' as 'center', dataIndex: 'totalAmount', title: '총액', key: 'totalAmount' },
+                        { align: 'center' as 'center',
+                          title: '관리',
+                          key: 'operation',
+                          render: (record: Sales) => (
+                            <span>
+                              <Button
+                                ghost
+                                size='small'
+                                type='primary'
+                                shape='circle'
+                                icon='edit'
+                              />
+                              <Button
+                                ghost size='small'
+                                type='danger'
+                                shape='circle'
+                                icon='delete'
+                                onClick={() => this.deleteSalesConfirm(record)}
+                                style={{ marginLeft: '0.5rem' }}
+                              />
+                            </span>
+                          )
+                        }
                       ]}
                       dataSource={selectedCompany && (selectedCompany.salesList || []).map((item: Sales) => {
                         console.log(item);
                         return {
+                          key: `${item.id}`,
+                          id: item.id,
                           date: `${item.year}년 ${item.month}월 ${item.day}일`,
                           supplyAmount: `${toCurrency(item.supplyAmount)}원`,
                           taxAmount: `${toCurrency(item.taxAmount)}원`,
@@ -140,20 +228,45 @@ class SelectedCompany extends React.Component<Props, State> {
                     <div>
                       <Table
                         size='small'
-                        rowKey='depositKey'
+                        rowKey={record => record.key}
                         pagination={false}
                         columns={[
-                          { align: 'center' as 'center', dataIndex: 'date', title: '입금일' },
-                          { align: 'center' as 'center', dataIndex: 'originMonth', title: '월분' },
-                          { align: 'center' as 'center', dataIndex: 'depositAmount', title: '입금액' },
-                          { align: 'center' as 'center', dataIndex: 'balanceAmount', title: '잔액' },
+                          { align: 'center' as 'center', dataIndex: 'date', title: '입금일', key: 'date' },
+                          { align: 'center' as 'center', dataIndex: 'originMonth', title: '월분', key: 'originMonth' },
+                          { align: 'center' as 'center', dataIndex: 'depositAmount', title: '입금액', key: 'depositAmount' },
+                          // { align: 'center' as 'center', dataIndex: 'balanceAmount', title: '잔액', key: 'balanceAmount' },
+                          { align: 'center' as 'center',
+                            title: '관리',
+                            key: 'operation',
+                            render: (record: Deposit) => (
+                              <span>
+                                <Button
+                                  ghost
+                                  size='small'
+                                  type='primary'
+                                  shape='circle'
+                                  icon='edit'
+                                />
+                                <Button
+                                  ghost size='small'
+                                  type='danger'
+                                  shape='circle'
+                                  icon='delete'
+                                  onClick={() => this.deleteDepositConfirm(record)}
+                                  style={{ marginLeft: '0.5rem' }}
+                                />
+                              </span>
+                            )
+                          }
                         ]}
                         dataSource={selectedCompany && (selectedCompany.depositList || []).map((item: Deposit) => {
                           return {
+                            key: `${item.id}`,
+                            id: item.id,
                             date: `${item.year}년 ${item.month}월 ${item.day}일`,
                             originMonth: item.originMonth,
                             depositAmount: `${toCurrency(item.depositAmount)}원`,
-                            balanceAmount: `${toCurrency(item.balanceAmount)}원`,
+                            // balanceAmount: `${toCurrency(item.balanceAmount)}원`,
                           }
                         })}
                       />
@@ -162,17 +275,24 @@ class SelectedCompany extends React.Component<Props, State> {
                 </Tabs>
               </div>
 
-              <CRow left style={{marginTop: '2rem'}}>
+              <CRow left style={{marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px dotted #b2bec3'}}>
                 <CColumn hover left>
-                  <Text strong>거래 총액: {toCurrency(sumAllSales)}원</Text>
+                  <Text style={{fontSize: '1rem', color: '#2980b9'}}>거래 총액 : {toCurrency(sumAllSales)}원</Text>
                 </CColumn>
                 <CColumn hover left>
-                  <Text strong>입금 총액: {toCurrency(sumAllDeposit)}원</Text>
+                  <Text style={{fontSize: '1rem', color: '#2980b9'}}>입금 총액 : {toCurrency(sumAllDeposit)}원</Text>
                 </CColumn>
               </CRow>
               <CRow left hover style={{marginTop: '1rem'}}>
-                <CColumn hober left>
-                  <Text strong>미수금 총액: {toCurrency(sumAllDeposit - sumAllSales)}원</Text>
+                <CColumn hover left>
+                  <Text
+                    style={{
+                      fontSize: '1rem',
+                      color: `${sumAllSales > sumAllDeposit ? '#e74c3c' : null }`
+                    }}
+                  >
+                      미수금(잔액) 총액 : {sumAllDeposit >= sumAllSales ? '없음' : `${toCurrency(Math.abs(sumAllSales - sumAllDeposit))}원`}
+                  </Text>
                 </CColumn>
               </CRow>
             </>
@@ -184,6 +304,24 @@ class SelectedCompany extends React.Component<Props, State> {
             </CRow>
           )}
         </Card>
+        { isSalesDialog &&
+          <SalesDialog
+            title="거래액 추가"
+            visible={isSalesDialog}
+            close={this.closeSalesDialog}
+            isModify={false}
+            modifyData={null}
+          />
+        }
+        { isDepositDialog &&
+          <DepositDialog
+            title="입금액 추가"
+            visible={isDepositDialog}
+            close={this.closeDepositDialog}
+            isModify={false}
+            modifyData={null}
+          />
+        }
       </>
     );
   }

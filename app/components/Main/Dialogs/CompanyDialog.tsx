@@ -24,9 +24,12 @@ interface Props extends FormComponentProps {
   visible: boolean;
   close: Function;
   isModify: boolean;
+  modifyData: Company;
 }
 
-interface State { }
+interface State {
+  modifyData: Company;
+}
 
 @inject('dataIoStore')
 @observer
@@ -35,29 +38,50 @@ class CompanyDialog extends React.Component<Props, State> {
     super(props);
   }
 
+  componentDidMount() {
+    const { form, modifyData, isModify } = this.props;
+    if (isModify) {
+      form.setFieldsValue({...modifyData});
+    }
+  }
+
   handleSubmit = (e) => {
+    const { close, isModify, modifyData } = this.props;
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
-    const { close } = this.props;
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         // console.log('Received values of form: ', values);
-        dataIoStore
-          .queryAddComapny(values as Company)
-          .then(() => {
-            dataIoStore
-              .queryCompanyByPage()
-              .then()
-              .catch(err => {throw err});
+        if (isModify) {
+          dataIoStore
+            .queryModifyCompany(modifyData.id, values as Company)
+            .then(() => {
+              dataIoStore
+                .queryCompanyByPage()
+                .then()
+                .catch(err => {throw err});
 
-            close();
-          })
-          .catch(err => console.log(err));
+              close();
+            })
+            .catch(err => {throw err})
+        } else {
+          dataIoStore
+            .queryAddComapny(values as Company)
+            .then(() => {
+              dataIoStore
+                .queryCompanyByPage()
+                .then()
+                .catch(err => {throw err});
+
+              close();
+            })
+            .catch(err => console.log(err));
+        }
       }
     });
   }
   render() {
-    const { title, visible, close } = this.props;
+    const { title, visible, close, isModify } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <>
@@ -72,7 +96,9 @@ class CompanyDialog extends React.Component<Props, State> {
             <Form.Item label='업체명'>
               {getFieldDecorator('companyName', {
                 rules: [{ required: true, message: '업체명 입력 필수', whitespace: true }]
-              })(<Input placeholder='업체명 입력' />)}
+              })(
+                <Input placeholder='업체명 입력' />
+              )}
             </Form.Item>
 
             <Form.Item label='거래상태'>
@@ -116,7 +142,7 @@ class CompanyDialog extends React.Component<Props, State> {
                 취소
               </Button>
               <Button htmlType='submit' type='primary' style={{marginLeft: '.5rem'}}>
-                추가
+                {isModify ? '수정' : '추가'}
               </Button>
             </div>
           </Form>

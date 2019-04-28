@@ -5,18 +5,18 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
- } from "typeorm";
-import { Company } from "./Company.entity";
+ } from 'typeorm';
+import { Company } from './Company.entity';
 
-@Entity("Deposit")
+@Entity('Deposit')
 export class Deposit {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn({type: "datetime"})
+  @CreateDateColumn({type: 'datetime'})
   public createdAt: Date;
 
-  @UpdateDateColumn({type: "datetime"})
+  @UpdateDateColumn({type: 'datetime'})
   public updatedAt: Date;
 
   @ManyToOne(type => Company, company => company.depositList, {
@@ -35,12 +35,12 @@ export class Deposit {
   @Column({type: 'int', default: 0})
   public day: number;
 
-  @Column({type: 'int', default: 0})
+  @Column({type: 'varchar', default: ''})
   public originMonth: number;
 
   @Column({type: 'int', default: 0})
   public depositAmount: number;
 
-  @Column({type: 'int', default: 0})
-  public balanceAmount: number;
+  // @Column({type: 'int', default: 0})
+  // public balanceAmount: number;
 }

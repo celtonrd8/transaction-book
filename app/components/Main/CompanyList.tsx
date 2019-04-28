@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { inject, observer } from 'mobx-react';
 import { DataIoStore } from '../../stores';
-import { Card, Table, Icon, Input, Button, Tooltip, Modal } from 'antd';
+import { Card, Table, Icon, Input, Button, Tooltip, Modal, Typography } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination'
 import Highlighter from 'react-highlight-words';
 import { Company } from '../../entity';
 import CompanyDialog from './Dialogs/CompanyDialog';
 // import './CompanyList.scss';
 
+const { Text } = Typography;
 const confirm = Modal.confirm;
 
 const cardHeaderSt: React.CSSProperties = {
@@ -21,8 +22,9 @@ interface Props {
 interface State {
   searchText: string;
   pagination: PaginationConfig;
-  isAddCompanyDialog: boolean;
-  isModifyMode: false;
+  isCompanyDialog: boolean;
+  isModify: boolean;
+  modifyData: Company;
  }
 
 @inject('dataIoStore')
@@ -36,8 +38,9 @@ class CompanyList extends React.Component<Props, State> {
     this.state = {
       searchText: '',
       pagination: {},
-      isAddCompanyDialog: false,
-      isModifyMode: false,
+      isCompanyDialog: false,
+      isModify: false,
+      modifyData: null,
     }
   }
 
@@ -110,8 +113,8 @@ class CompanyList extends React.Component<Props, State> {
     this.setState({ searchText: '' });
   }
 
-  openAddCompanyDialog = () => { this.setState({isAddCompanyDialog: true, isModifyMode: false}) };
-  closeAddCompanyDialog = () => { this.setState({isAddCompanyDialog: false}) };
+  openCompanyDialog = () => { this.setState({isCompanyDialog: true}) };
+  closeCompanyDialog = () => { this.setState({isCompanyDialog: false, isModify: false}) };
 
   deleteCompanyConfirm = (record: Company) => {
     console.log(record);
@@ -121,7 +124,6 @@ class CompanyList extends React.Component<Props, State> {
       content: '등록된 업체가 삭제 됩니다?',
       onOk() {
         return new Promise((resolve, reject) => {
-          // setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
           dataIoStore
             .queryDeleteCompany(record.id)
             .then(() => {
@@ -138,6 +140,15 @@ class CompanyList extends React.Component<Props, State> {
     })
   }
 
+  modifyData = (record: Company) => {
+    this.setState({
+      modifyData: {...record},
+      isModify: true,
+    }, () => {
+      this.openCompanyDialog();
+    });
+  }
+
   selectCompany = (record: Company) => {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     dataIoStore.setSelectedComapnyId(record.id);
@@ -146,11 +157,12 @@ class CompanyList extends React.Component<Props, State> {
   render() {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const companyList = dataIoStore.companyList;
-    const { pagination, isAddCompanyDialog, isModifyMode } = this.state;
+    const { pagination, isCompanyDialog, isModify, modifyData } = this.state;
 
     const columns = [{
       align: 'center' as 'center',
       dataIndex: 'companyName',
+      key: 'companyName',
       title: '업체명',
       ...this.getColumnSearchProps('companyName'),
       render: (text: string, record: Company) => (
@@ -161,27 +173,31 @@ class CompanyList extends React.Component<Props, State> {
     }, {
       align: 'center' as 'center',
       dataIndex: 'transactionState',
+      key: 'transactionState',
       title: '거래상태',
       render: text => {
-        if (text === 'ON') return (<div>거래중</div>)
-        else if (text === 'OFF') return (<div style={{color: '#EA2027'}}>거래중지(미반영)</div>)
-        else if (text === 'PAUSE') return (<div style={{color: '#D980FA'}}>거래중지(반영)</div>)
+        if (text === 'ON') return (<Text>거래중</Text>)
+        else if (text === 'OFF') return (<Text style={{color: '#EA2027'}}>거래중지(미반영)</Text>)
+        else if (text === 'PAUSE') return (<Text style={{color: '#D980FA'}}>거래중지(반영)</Text>)
         else return ''
       },
     },
-    { align: 'center' as 'center', dataIndex: 'phone', title: '연락처' },
-    { align: 'center' as 'center', dataIndex: 'accountNumber', title: '계정번호'},
-    { align: 'center' as 'center', dataIndex: 'depositDate', title: '입금일' },
+    { align: 'center' as 'center', dataIndex: 'phone', title: '연락처', key: 'phone' },
+    { align: 'center' as 'center', dataIndex: 'accountNumber', title: '계정번호', key: 'accountNumber'},
+    { align: 'center' as 'center', dataIndex: 'depositDate', title: '입금일', key: 'depositDate' },
     {
       align: 'center' as 'center',
       dataIndex: 'memo',
+      key: 'memo',
       title: '메모',
       render: (text: string) => (
         <Tooltip placement='topLeft' title={text}>
-          {text.length > 6 ? `${text.substring(0, 6)}..` : text}
-          { (text.length > 0) &&
-            <Icon type='zoom-in' style={{marginLeft: '.5rem'}} />
-          }
+          <Text>
+            {text.length > 6 ? `${text.substring(0, 6)}..` : text}
+            { (text.length > 0) &&
+              <Icon type='zoom-in' style={{marginLeft: '.5rem'}} />
+            }
+          </Text>
         </Tooltip>
       )
     }, {
@@ -190,7 +206,7 @@ class CompanyList extends React.Component<Props, State> {
       key: 'operation',
       render: (record: Company) => (
         <span>
-          <Button ghost size='small' type='primary' onClick={() => console.log(record)}>
+          <Button ghost size='small' type='primary' onClick={() => this.modifyData(record)}>
             수정
           </Button>
           <Button ghost size='small' type='danger' style={{ marginLeft: '0.5rem' }} onClick={() => this.deleteCompanyConfirm(record)}>
@@ -214,7 +230,7 @@ class CompanyList extends React.Component<Props, State> {
                   shape='circle'
                   icon='plus'
                   size={'default'}
-                  onClick={this.openAddCompanyDialog}
+                  onClick={this.openCompanyDialog}
                 />
               </Tooltip>
               <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
@@ -232,7 +248,7 @@ class CompanyList extends React.Component<Props, State> {
           <div className="clScrollControl">
             <Table
               size='middle'
-              rowKey='companyListKey'
+              rowKey={record => record.key}
               columns={columns}
               dataSource={companyList}
               pagination={pagination}
@@ -240,12 +256,15 @@ class CompanyList extends React.Component<Props, State> {
           </div>
         </Card>
 
-        <CompanyDialog
-          title='업체 추가'
-          visible={isAddCompanyDialog}
-          close={this.closeAddCompanyDialog}
-          isModify={isModifyMode}
-        />
+        { isCompanyDialog &&
+          <CompanyDialog
+            title={isModify ? '업체 수정' : '업체 추가'}
+            visible={isCompanyDialog}
+            close={this.closeCompanyDialog}
+            isModify={isModify}
+            modifyData={isModify ? modifyData : null}
+          />
+        }
       </>
     );
   }

@@ -5,19 +5,19 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
- } from "typeorm";
+ } from 'typeorm';
 
- import { Company } from "./Company.entity";
+ import { Company } from './Company.entity';
 
-@Entity("Sales")
+@Entity('Sales')
 export class Sales {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn({type: "datetime"})
+  @CreateDateColumn({type: 'datetime'})
   public createdAt: Date;
 
-  @UpdateDateColumn({type: "datetime"})
+  @UpdateDateColumn({type: 'datetime'})
   public updatedAt: Date;
 
   @ManyToOne(type => Company, company => company.salesList, {

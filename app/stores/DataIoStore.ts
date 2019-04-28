@@ -1,6 +1,6 @@
 import { observable, action } from 'mobx';
 import { getConnection } from "typeorm";
-import { Company } from "../entity";
+import { Company, Sales, Deposit } from "../entity";
 
 export class DataIoStore {
 
@@ -17,7 +17,7 @@ export class DataIoStore {
   private _updateCompanyList = (companyList: Company[]) => {
     this.totalCount = companyList.length;
     this.companyList = companyList.map((item) => {
-      console.log(item);
+      // console.log(item);
       return {
         key: item.id.toString(),
         ...item,
@@ -26,8 +26,8 @@ export class DataIoStore {
   }
 
   @action
-  public setSelectedComapnyId = (id: number) => {
-    this.selectedComapnyId = id;
+  public setSelectedComapnyId = (companyId: number) => {
+    this.selectedComapnyId = companyId;
   }
 
   public queryCompanyByPage = async () => {
@@ -41,7 +41,7 @@ export class DataIoStore {
 
       if (result) {
         this._updateCompanyList(result);
-        console.log(result);
+        // console.log(result);
         return result;
       }
     } catch(e) {
@@ -49,24 +49,87 @@ export class DataIoStore {
     }
   }
 
-  public queryDeleteCompany = async(id: number) => {
+  public queryDeleteCompany = async(companyId: number) => {
     try {
       return await getConnection()
         .getRepository(Company)
-        .delete({id: id});
+        .delete({id: companyId});
     } catch(e) {
       throw e;
     }
   }
 
-  public queryAddComapny = async(value: Company) => {
+  public queryAddComapny = async(company: Company) => {
     // console.log(value)
     try {
       return await getConnection()
         .getRepository(Company)
-        .save(value);
+        .save(company);
     } catch(e) {
       throw e;
     }
   }
+
+  public queryModifyCompany = async(companyId: number, company: Company) => {
+    try {
+      return await getConnection()
+        .getRepository(Company)
+        .update({id: companyId}, company);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public queryAddSalesAmount = async(companyId: number, sales: Sales) => {
+    try {
+      const company = await getConnection()
+        .getRepository(Company)
+        .findOne(companyId);
+
+      sales.company = company;
+      return await getConnection()
+        .getRepository(Sales)
+        .save(sales);
+
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public queryDeleteSalesAmount = async(salesId: number) => {
+    try {
+      return await getConnection()
+        .getRepository(Sales)
+        .delete({ id: salesId });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public queryAddDepositAmount = async(companyId: number, deposit: Deposit) => {
+    try {
+      const company = await getConnection()
+        .getRepository(Company)
+        .findOne(companyId);
+
+      deposit.company = company;
+      return await getConnection()
+        .getRepository(Deposit)
+        .save(deposit);
+
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public queryDeleteDepositAmount = async(depositId: number) => {
+    try {
+      return await getConnection()
+        .getRepository(Deposit)
+        .delete({ id: depositId });
+    } catch (e) {
+      throw e;
+    }
+  }
+
 }
