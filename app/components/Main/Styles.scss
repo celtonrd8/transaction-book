@@ -10,10 +10,13 @@
 .mainRootLayout {
   width: 100%;
   height: 100%;
+  // height: calc(100vh - 100px);
   display: flex;
   flex-direction: row;
 }
 .mainLeftSideLayout {
+  // min-width: 840px;
+  height: 100%;
   flex: 0.6;
   padding: 0.5rem;
 }
@@ -42,10 +45,10 @@
   justify-content: flex-end;
 }
 
-.clScrollControl {
-  height: calc(100vh - 195px);
-  overflow-y: auto;
-}
+// .clScrollControl {
+//   height: calc(100vh - 195px);
+//   overflow-y: auto;
+// }
 
 .acdFooter {
   width: 100%;
@@ -56,7 +59,7 @@
   align-items: center;
 }
 
-.scScrollControl {
-  height: calc(100vh - 750px);
-  overflow-y: auto;
-}
+// .scScrollControl {
+//   height: calc(100vh - 750px);
+//   overflow-y: auto;
+// }

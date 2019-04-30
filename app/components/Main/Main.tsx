@@ -19,9 +19,11 @@ export default class Main extends React.Component<Props, State> {
 
   componentDidMount() {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
-    dataIoStore
-      .queryCompanyByPage().then()
+    dataIoStore.globalUpdate()
+      .then()
       .catch(err => console.log(err.message));
+    // dataIoStore.queryCompanyByPage().then().catch(err => console.log(err.message));
+    // dataIoStore.queryGetAllYears().then().catch(err => console.log(err.message));
   }
 
   render() {

@@ -13,6 +13,9 @@ export class DataIoStore {
   @observable
   selectedComapnyId: number = 0;
 
+  @observable
+  allYears: string[] = [];
+
   @action
   private _updateCompanyList = (companyList: Company[]) => {
     this.totalCount = companyList.length;
@@ -28,6 +31,21 @@ export class DataIoStore {
   @action
   public setSelectedComapnyId = (companyId: number) => {
     this.selectedComapnyId = companyId;
+  }
+
+  @action
+  private _updateYears = (years: string[]) => {
+    this.allYears = years;
+  }
+
+  public globalUpdate = async () => {
+    try {
+      await this.queryCompanyByPage();
+      await this.queryGetAllYears();
+      return await true;
+    } catch(e) {
+      throw e;
+    }
   }
 
   public queryCompanyByPage = async () => {
@@ -128,6 +146,19 @@ export class DataIoStore {
         .getRepository(Deposit)
         .delete({ id: depositId });
     } catch (e) {
+      throw e;
+    }
+  }
+
+  public queryGetAllYears = async () => {
+    try {
+      const result = await getConnection()
+        .query(`SELECT distinct year from Sales UNION SELECT year from Deposit;`);
+      if (result) {
+        this._updateYears(result.map(item => item.year));
+        return result;
+      }
+    } catch(e) {
       throw e;
     }
   }

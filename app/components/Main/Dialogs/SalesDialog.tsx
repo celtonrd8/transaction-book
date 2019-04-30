@@ -64,11 +64,9 @@ class SalesDialog extends React.Component<Props, State> {
         dataIoStore
         .queryAddSalesAmount(selectedComapnyId, sales)
         .then(() => {
-          dataIoStore
-            .queryCompanyByPage()
+          dataIoStore.globalUpdate()
             .then()
-            .catch(err => {throw err});
-
+            .catch(err => console.log(err.message));
           close();
         })
         .catch(err => {throw err})

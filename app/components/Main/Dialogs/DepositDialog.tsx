@@ -62,20 +62,16 @@ class DepositDialog extends React.Component<Props, State> {
         // deposit.balanceAmount = +(values.balanceAmount);
 
         dataIoStore
-        .queryAddDepositAmount(selectedComapnyId, deposit)
-        .then(() => {
-          dataIoStore
-            .queryCompanyByPage()
-            .then()
-            .catch(err => {throw err});
-
-          close();
-        })
-        .catch(err => {throw err})
+          .queryAddDepositAmount(selectedComapnyId, deposit)
+          .then(() => {
+            dataIoStore.globalUpdate()
+              .then()
+              .catch(err => console.log(err.message));
+            close();
+          })
+          .catch(err => {throw err});
         // if (isModify) {
-
         // } else {
-
         // }
       }
     });

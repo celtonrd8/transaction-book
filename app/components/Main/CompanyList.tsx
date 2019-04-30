@@ -245,15 +245,15 @@ class CompanyList extends React.Component<Props, State> {
             </div>
           }
         >
-          <div className="clScrollControl">
-            <Table
-              size='middle'
-              rowKey={record => record.key}
-              columns={columns}
-              dataSource={companyList}
-              pagination={pagination}
-            />
-          </div>
+          <Table
+            size='middle'
+            rowKey={record => record.key}
+            columns={columns}
+            dataSource={companyList}
+            pagination={pagination}
+            scroll={{y: 680}}
+            style={{height: 'calc(100vh - 200px)'}}
+          />
         </Card>
 
         { isCompanyDialog &&

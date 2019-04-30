@@ -56,11 +56,9 @@ class CompanyDialog extends React.Component<Props, State> {
           dataIoStore
             .queryModifyCompany(modifyData.id, values as Company)
             .then(() => {
-              dataIoStore
-                .queryCompanyByPage()
+              dataIoStore.globalUpdate()
                 .then()
-                .catch(err => {throw err});
-
+                .catch(err => console.log(err.message));
               close();
             })
             .catch(err => {throw err})
@@ -68,11 +66,9 @@ class CompanyDialog extends React.Component<Props, State> {
           dataIoStore
             .queryAddComapny(values as Company)
             .then(() => {
-              dataIoStore
-                .queryCompanyByPage()
-                .then()
-                .catch(err => {throw err});
-
+              dataIoStore.globalUpdate()
+              .then()
+              .catch(err => console.log(err.message));
               close();
             })
             .catch(err => console.log(err));
