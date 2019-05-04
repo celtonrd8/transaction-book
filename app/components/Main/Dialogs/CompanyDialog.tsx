@@ -27,9 +27,7 @@ interface Props extends FormComponentProps {
   modifyData: Company;
 }
 
-interface State {
-  modifyData: Company;
-}
+interface State { }
 
 @inject('dataIoStore')
 @observer
@@ -54,7 +52,7 @@ class CompanyDialog extends React.Component<Props, State> {
         // console.log('Received values of form: ', values);
         if (isModify) {
           dataIoStore
-            .queryModifyCompany(modifyData.id, values as Company)
+            .qModifyCompany(modifyData.id, values as Company)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
@@ -64,7 +62,7 @@ class CompanyDialog extends React.Component<Props, State> {
             .catch(err => {throw err})
         } else {
           dataIoStore
-            .queryAddComapny(values as Company)
+            .qAddComapny(values as Company)
             .then(() => {
               dataIoStore.globalUpdate()
               .then()

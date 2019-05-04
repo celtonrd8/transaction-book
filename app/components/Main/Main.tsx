@@ -22,8 +22,6 @@ export default class Main extends React.Component<Props, State> {
     dataIoStore.globalUpdate()
       .then()
       .catch(err => console.log(err.message));
-    // dataIoStore.queryCompanyByPage().then().catch(err => console.log(err.message));
-    // dataIoStore.queryGetAllYears().then().catch(err => console.log(err.message));
   }
 
   render() {
@@ -34,9 +32,11 @@ export default class Main extends React.Component<Props, State> {
             <CompanyList />
           </div>
           <div className="mainRightSideLayout">
-            <SelectedCompany />
+            <div className="mainSelectCompany">
+              <SelectedCompany />
+            </div>
             <div className="mainTotalAmount">
-            <TotalAmount />
+              <TotalAmount />
             </div>
           </div>
         </div>

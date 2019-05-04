@@ -3,7 +3,8 @@ import { inject, observer } from 'mobx-react';
 import { Modal, Button, Form, Input, DatePicker } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { DataIoStore } from '../../../stores';
-import { Company, Sales } from '../../../entity';
+import { Sales } from '../../../entity';
+import * as  moment from 'moment';
 // import { toCurrency } from '../../../utils';
 // const { TextArea } = Input;
 
@@ -23,12 +24,10 @@ interface Props extends FormComponentProps {
   visible: boolean;
   close: Function;
   isModify: boolean;
-  modifyData: Company;
+  modifyDataId: number;
 }
 
-interface State {
-  modifyData: Company;
-}
+interface State { }
 
 @inject('dataIoStore')
 @observer
@@ -38,15 +37,26 @@ class SalesDialog extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { form, modifyData, isModify } = this.props;
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    const { form, modifyDataId, isModify } = this.props;
     if (isModify) {
-      form.setFieldsValue({...modifyData});
+      dataIoStore.qGetSalesById(modifyDataId)
+        .then((sales) => {
+          form.setFieldsValue({
+            pubDate: moment(`${sales.year}-${sales.month}-${sales.day}`),
+            supplyAmount: sales.supplyAmount,
+            // taxAmount: sales.taxAmount,
+            // totalAmount: sales.totalAmount,
+          });
+        })
+        .catch(err => console.log(err.message))
+      // console.log(modifyDataId);
     }
   }
 
   handleSubmit = (e) => {
     // const { close, isModify, modifyData } = this.props;
-    const { close } = this.props;
+    const { close, isModify, modifyDataId } = this.props;
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const selectedComapnyId = dataIoStore.selectedComapnyId;
     e.preventDefault();
@@ -61,20 +71,27 @@ class SalesDialog extends React.Component<Props, State> {
         sales.taxAmount = +(values.taxAmount);
         sales.totalAmount = +(values.totalAmount);
 
-        dataIoStore
-        .queryAddSalesAmount(selectedComapnyId, sales)
-        .then(() => {
-          dataIoStore.globalUpdate()
-            .then()
+        if (isModify) {
+          dataIoStore
+            .qUpdateSalesAmount(modifyDataId, sales)
+            .then(() => {
+              dataIoStore.globalUpdate()
+                .then()
+                .catch(err => {throw err});
+              close();
+            })
             .catch(err => console.log(err.message));
-          close();
-        })
-        .catch(err => {throw err})
-        // if (isModify) {
-
-        // } else {
-
-        // }
+        } else {
+          dataIoStore
+          .qAddSalesAmount(selectedComapnyId, sales)
+          .then(() => {
+            dataIoStore.globalUpdate()
+              .then()
+              .catch(err =>{throw err});
+            close();
+          })
+          .catch(err =>  console.log(err.message));
+        }
       }
     });
   }
@@ -91,7 +108,7 @@ class SalesDialog extends React.Component<Props, State> {
           footer={[null, null]}
         >
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-            <Form.Item label='업체명'>
+            <Form.Item label='거래일'>
               {getFieldDecorator('pubDate', {
                 rules: [{ type:'object', required: true, message: '발행일 입력 필수' }]
               })(

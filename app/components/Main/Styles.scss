@@ -23,8 +23,14 @@
 .mainRightSideLayout {
   flex: 0.4;
   padding: 0.5rem 0.5rem 0.5rem 0;
+  height: 100%;
   // max-height: 500px;
 }
+
+.mainSelectCompany {
+
+}
+
 .mainTotalAmount {
   padding-top: 0.5rem;
 }
@@ -59,7 +65,16 @@
   align-items: center;
 }
 
-// .scScrollControl {
-//   height: calc(100vh - 750px);
+// .scHeight {
+  // min-height: calc(100vh - 700px);
+  // overflow-y: auto;
+// }
+
+// .taHeight {
+  // min-height: calc(100vh - 980px);
+// }
+
+// .taScroll {
+//   max-height: 200px;
 //   overflow-y: auto;
 // }

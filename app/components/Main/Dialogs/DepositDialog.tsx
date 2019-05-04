@@ -3,7 +3,8 @@ import { inject, observer } from 'mobx-react';
 import { Modal, Button, Form, Input, DatePicker } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { DataIoStore } from '../../../stores';
-import { Company, Deposit } from '../../../entity';
+import { Deposit } from '../../../entity';
+import * as  moment from 'moment';
 
 // const { TextArea } = Input;
 
@@ -23,12 +24,10 @@ interface Props extends FormComponentProps {
   visible: boolean;
   close: Function;
   isModify: boolean;
-  modifyData: Company;
+  modifyDataId: number;
 }
 
-interface State {
-  modifyData: Company;
-}
+interface State { }
 
 @inject('dataIoStore')
 @observer
@@ -38,15 +37,24 @@ class DepositDialog extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { form, modifyData, isModify } = this.props;
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    const { form, modifyDataId, isModify } = this.props;
     if (isModify) {
-      form.setFieldsValue({...modifyData});
+      dataIoStore.qGetDepositById(modifyDataId)
+        .then((deposit) => {
+          form.setFieldsValue({
+            depositDate: moment(`${deposit.year}-${deposit.month}-${deposit.day}`),
+            originMonth: deposit.originMonth,
+            depositAmount: deposit.depositAmount,
+          });
+        })
+        .catch(err => console.log(err.message))
     }
   }
 
   handleSubmit = (e) => {
     // const { close, isModify, modifyData } = this.props;
-    const { close } = this.props;
+    const { close, isModify, modifyDataId } = this.props;
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const selectedComapnyId = dataIoStore.selectedComapnyId;
     e.preventDefault();
@@ -61,8 +69,19 @@ class DepositDialog extends React.Component<Props, State> {
         deposit.depositAmount = +(values.depositAmount);
         // deposit.balanceAmount = +(values.balanceAmount);
 
-        dataIoStore
-          .queryAddDepositAmount(selectedComapnyId, deposit)
+        if (isModify) {
+          dataIoStore
+            .qUpdateDepositAmount(modifyDataId, deposit)
+            .then(() => {
+              dataIoStore.globalUpdate()
+                .then()
+                .catch(err => {throw err});
+              close();
+            })
+            .catch(err => console.log(err.message));
+        } else {
+          dataIoStore
+          .qAddDepositAmount(selectedComapnyId, deposit)
           .then(() => {
             dataIoStore.globalUpdate()
               .then()
@@ -70,9 +89,7 @@ class DepositDialog extends React.Component<Props, State> {
             close();
           })
           .catch(err => {throw err});
-        // if (isModify) {
-        // } else {
-        // }
+        }
       }
     });
   }

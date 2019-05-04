@@ -117,7 +117,7 @@ class CompanyList extends React.Component<Props, State> {
   closeCompanyDialog = () => { this.setState({isCompanyDialog: false, isModify: false}) };
 
   deleteCompanyConfirm = (record: Company) => {
-    console.log(record);
+    // console.log(record);
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     confirm({
       title: '업체 삭제',
@@ -125,10 +125,10 @@ class CompanyList extends React.Component<Props, State> {
       onOk() {
         return new Promise((resolve, reject) => {
           dataIoStore
-            .queryDeleteCompany(record.id)
+            .qDeleteCompany(record.id)
             .then(() => {
               dataIoStore
-                .queryCompanyByPage()
+                .globalUpdate()
                 .then()
                 .catch(err => {throw err});
               resolve();
@@ -140,7 +140,7 @@ class CompanyList extends React.Component<Props, State> {
     })
   }
 
-  modifyData = (record: Company) => {
+  setModifyData = (record: Company) => {
     this.setState({
       modifyData: {...record},
       isModify: true,
@@ -206,7 +206,7 @@ class CompanyList extends React.Component<Props, State> {
       key: 'operation',
       render: (record: Company) => (
         <span>
-          <Button ghost size='small' type='primary' onClick={() => this.modifyData(record)}>
+          <Button ghost size='small' type='primary' onClick={() => this.setModifyData(record)}>
             수정
           </Button>
           <Button ghost size='small' type='danger' style={{ marginLeft: '0.5rem' }} onClick={() => this.deleteCompanyConfirm(record)}>
@@ -251,7 +251,7 @@ class CompanyList extends React.Component<Props, State> {
             columns={columns}
             dataSource={companyList}
             pagination={pagination}
-            scroll={{y: 680}}
+            scroll={{y: 'calc(100vh - 300px)'}}
             style={{height: 'calc(100vh - 200px)'}}
           />
         </Card>
