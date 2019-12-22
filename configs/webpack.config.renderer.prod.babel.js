@@ -185,7 +185,8 @@ export default merge.smart(baseConfig, {
               }
             }
           })
-        ]
+        ],
+    minimize: false
   },
 
   plugins: [

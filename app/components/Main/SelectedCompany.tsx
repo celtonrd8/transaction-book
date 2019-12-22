@@ -46,9 +46,9 @@ class SelectedCompany extends React.Component<Props, State> {
 
   componentDidMount () { }
 
-  openSalesDialog = () => { this.setState({ isSalesDialog: true }) }
+  openSalesDialog = () => { this.setState({ isSalesDialog: true, isSalesModify: false }) }
   closeSalesDialog = () => { this.setState({ isSalesDialog: false, isSalesModify: false }) }
-  openDepositDialog = () => { this.setState({ isDepositDialog: true }) }
+  openDepositDialog = () => { this.setState({ isDepositDialog: true, isSalesModify: false }) }
   closeDepositDialog = () => { this.setState({ isDepositDialog: false, isDepositModify: false })}
 
   getSelectedCompanyData = () => {
@@ -77,21 +77,11 @@ class SelectedCompany extends React.Component<Props, State> {
   }
 
   setSalesModifyData = (id: number) => {
-    this.setState({
-      salesModifyId: id,
-      isSalesModify: true,
-    }, () => {
-      this.openSalesDialog();
-    });
+    this.setState({ salesModifyId: id, isSalesModify: true, isSalesDialog: true });
   }
 
   setDepositModifyData = (id: number) => {
-    this.setState({
-      depositModifyId: id,
-      isDepositModify: true,
-    }, () => {
-      this.openDepositDialog();
-    });
+    this.setState({ depositModifyId: id, isDepositModify: true, isDepositDialog: true });
   }
 
   deleteSalesConfirm = (record: Sales) => {
@@ -205,12 +195,11 @@ class SelectedCompany extends React.Component<Props, State> {
                     scroll={{y: 'calc(100vh - 840px)'}}
                     style={{height: 'calc(100vh - 800px)'}}
                     columns={[
-                      { align: 'center' as 'center', dataIndex: 'date', title: '발행일', key: 'date' },
-                      { align: 'center' as 'center', dataIndex: 'supplyAmount', title: '공급액', key: 'supplyAmount' },
-                      { align: 'center' as 'center', dataIndex: 'taxAmount', title: '세액', key: 'taxAmount' },
-                      { align: 'center' as 'center', dataIndex: 'totalAmount', title: '총액', key: 'totalAmount' },
-                      { align: 'center' as 'center',
-                        title: '관리',
+                      { width: '25%', dataIndex: 'date', title: '발행일', key: 'date' },
+                      { width: '20%', dataIndex: 'supplyAmount', title: '공급액', key: 'supplyAmount' },
+                      { width: '20%', dataIndex: 'taxAmount', title: '세액', key: 'taxAmount' },
+                      { width: '20%', dataIndex: 'totalAmount', title: '총액', key: 'totalAmount' },
+                      { title: '관리',
                         key: 'operation',
                         render: (record: Sales) => (
                           <span>
@@ -255,12 +244,11 @@ class SelectedCompany extends React.Component<Props, State> {
                     scroll={{y: 'calc(100vh - 840px)'}}
                     style={{height: 'calc(100vh - 800px)'}}
                     columns={[
-                      { align: 'center' as 'center', dataIndex: 'date', title: '입금일', key: 'date' },
-                      { align: 'center' as 'center', dataIndex: 'originMonth', title: '월분', key: 'originMonth' },
-                      { align: 'center' as 'center', dataIndex: 'depositAmount', title: '입금액', key: 'depositAmount' },
+                      { width: '25%', dataIndex: 'date', title: '입금일', key: 'date' },
+                      { width: '20%', dataIndex: 'originMonth', title: '월분', key: 'originMonth' },
+                      { width: '20%', dataIndex: 'depositAmount', title: '입금액', key: 'depositAmount' },
                       // { align: 'center' as 'center', dataIndex: 'balanceAmount', title: '잔액', key: 'balanceAmount' },
-                      { align: 'center' as 'center',
-                        title: '관리',
+                      { title: '관리',
                         key: 'operation',
                         render: (record: Deposit) => (
                           <span>

@@ -8,7 +8,7 @@
  * When running `yarn build` or `yarn build-main`, this file is compiled to
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -72,6 +72,11 @@ app.on('ready', async () => {
     height: 1050,
     minHeight: 1050,
   });
+
+  ipcMain.on('message', (event, arg) => {
+    console.log(arg);
+  });
+
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
   // @TODO: Use 'ready-to-show' event

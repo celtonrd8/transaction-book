@@ -56,17 +56,17 @@ class CompanyDialog extends React.Component<Props, State> {
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
-                .catch(err => console.log(err.message));
+                .catch(err => {throw err});
               close();
             })
-            .catch(err => {throw err})
+            .catch(err => console.log(err))
         } else {
           dataIoStore
             .qAddComapny(values as Company)
             .then(() => {
               dataIoStore.globalUpdate()
               .then()
-              .catch(err => console.log(err.message));
+              .catch(err =>{throw err});
               close();
             })
             .catch(err => console.log(err));

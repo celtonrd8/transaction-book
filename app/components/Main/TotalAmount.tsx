@@ -38,11 +38,11 @@ export default class TotalAmount extends React.Component<Props, State> {
         title="연간 총장"
         bordered={true}
         headStyle={cardHeader}
-        // className="taHeight"
+        bodyStyle={{padding: '0 1rem 1rem 1rem'}}
       >
           <Tabs defaultActiveKey="0" animated={false} style={tabs}>
             {
-              dataIoStore.yearlyTotalAmount &&
+              dataIoStore && dataIoStore.yearlyTotalAmount &&
               dataIoStore.yearlyTotalAmount.map((yearlyTotal, yIdx) => {
                 return (
                   <TabPane tab={`${yearlyTotal.year}년`} key={`${yIdx + 1}`}>

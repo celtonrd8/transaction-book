@@ -160,7 +160,7 @@ class CompanyList extends React.Component<Props, State> {
     const { pagination, isCompanyDialog, isModify, modifyData } = this.state;
 
     const columns = [{
-      align: 'center' as 'center',
+      width: '14%',
       dataIndex: 'companyName',
       key: 'companyName',
       title: '업체명',
@@ -171,7 +171,7 @@ class CompanyList extends React.Component<Props, State> {
         </div>
       )
     }, {
-      align: 'center' as 'center',
+      width: '14%',
       dataIndex: 'transactionState',
       key: 'transactionState',
       title: '거래상태',
@@ -182,11 +182,10 @@ class CompanyList extends React.Component<Props, State> {
         else return ''
       },
     },
-    { align: 'center' as 'center', dataIndex: 'phone', title: '연락처', key: 'phone' },
-    { align: 'center' as 'center', dataIndex: 'accountNumber', title: '계정번호', key: 'accountNumber'},
-    { align: 'center' as 'center', dataIndex: 'depositDate', title: '입금일', key: 'depositDate' },
+    { width: '14%', dataIndex: 'phone', title: '연락처', key: 'phone' },
+    { width: '14%', dataIndex: 'accountNumber', title: '계정번호', key: 'accountNumber'},
+    { width: '14%', dataIndex: 'depositDate', title: '입금일', key: 'depositDate' },
     {
-      align: 'center' as 'center',
       dataIndex: 'memo',
       key: 'memo',
       title: '메모',
@@ -201,15 +200,25 @@ class CompanyList extends React.Component<Props, State> {
         </Tooltip>
       )
     }, {
-      align: 'center' as 'center',
       title: '관리',
       key: 'operation',
       render: (record: Company) => (
         <span>
-          <Button ghost size='small' type='primary' onClick={() => this.setModifyData(record)}>
+          <Button
+            ghost
+            size='small'
+            type='primary'
+            onClick={() => this.setModifyData(record)}
+          >
             수정
           </Button>
-          <Button ghost size='small' type='danger' style={{ marginLeft: '0.5rem' }} onClick={() => this.deleteCompanyConfirm(record)}>
+          <Button
+            ghost
+            size='small'
+            type='danger'
+            style={{ marginLeft: '0.5rem' }}
+            onClick={() => this.deleteCompanyConfirm(record)}
+          >
             삭제
           </Button>
         </span>
@@ -247,7 +256,7 @@ class CompanyList extends React.Component<Props, State> {
         >
           <Table
             size='middle'
-            rowKey={record => record.key}
+            rowKey={record => `${record.id}`}
             columns={columns}
             dataSource={companyList}
             pagination={pagination}

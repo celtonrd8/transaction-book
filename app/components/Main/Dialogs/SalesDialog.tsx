@@ -5,6 +5,7 @@ import { FormComponentProps } from 'antd/lib/form/Form';
 import { DataIoStore } from '../../../stores';
 import { Sales } from '../../../entity';
 import * as  moment from 'moment';
+import { ipcRenderer } from 'electron';
 // import { toCurrency } from '../../../utils';
 // const { TextArea } = Input;
 
@@ -56,6 +57,7 @@ class SalesDialog extends React.Component<Props, State> {
 
   handleSubmit = (e) => {
     // const { close, isModify, modifyData } = this.props;
+    ipcRenderer.send('message', 'run handleSubmit()');
     const { close, isModify, modifyDataId } = this.props;
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const selectedComapnyId = dataIoStore.selectedComapnyId;
@@ -82,15 +84,21 @@ class SalesDialog extends React.Component<Props, State> {
             })
             .catch(err => console.log(err.message));
         } else {
+          ipcRenderer.send('message', 'run !isModify');
           dataIoStore
-          .qAddSalesAmount(selectedComapnyId, sales)
-          .then(() => {
-            dataIoStore.globalUpdate()
-              .then()
-              .catch(err =>{throw err});
-            close();
-          })
-          .catch(err =>  console.log(err.message));
+            .qAddSalesAmount(selectedComapnyId, sales)
+            .then(() => {
+              dataIoStore.globalUpdate()
+                .then()
+                .catch(err =>{throw err});
+                ipcRenderer.send('message', 'success');
+              close();
+            })
+            .catch(err =>  {
+              console.log(err.message);
+              ipcRenderer.send('message', `${err.message}`);
+
+            });
         }
       }
     });

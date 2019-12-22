@@ -35,7 +35,8 @@ export default merge.smart(baseConfig, {
             sourceMap: true,
             cache: true
           })
-        ]
+        ],
+    minimize: false
   },
 
   plugins: [

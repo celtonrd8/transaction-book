@@ -16,6 +16,7 @@ createConnection({
   synchronize: true,
   logging: true,
   logger: 'simple-console',
+  // database: `${process.cwd()}/database.sqlite`,
   database: './database.sqlite',
   entities: [Company, Deposit, Sales],
 })

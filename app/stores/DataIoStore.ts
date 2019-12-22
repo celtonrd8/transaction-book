@@ -155,7 +155,7 @@ export class DataIoStore {
     try {
       const company = await getConnection()
         .getRepository(Company)
-        .findOne(companyId);
+        .findOne({id: companyId});
 
       sales.company = company;
       return await getConnection()
@@ -200,7 +200,7 @@ public qUpdateSalesAmount = async(salesId: number, sales: Sales) => {
     try {
       const company = await getConnection()
         .getRepository(Company)
-        .findOne(companyId);
+        .findOne({id: companyId});
 
       deposit.company = company;
       return await getConnection()
