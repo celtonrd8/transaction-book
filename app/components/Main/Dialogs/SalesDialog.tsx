@@ -4,6 +4,7 @@ import { Modal, Button, Form, Input, DatePicker } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { DataIoStore } from '../../../stores';
 import { Sales } from '../../../entity';
+import { qUpdateSalesAmount, qAddSalesAmount, qGetSalesById } from '../../../stores/quries';
 import * as  moment from 'moment';
 import { ipcRenderer } from 'electron';
 // import { toCurrency } from '../../../utils';
@@ -38,10 +39,10 @@ class SalesDialog extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    // const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const { form, modifyDataId, isModify } = this.props;
     if (isModify) {
-      dataIoStore.qGetSalesById(modifyDataId)
+      qGetSalesById(modifyDataId)
         .then((sales) => {
           form.setFieldsValue({
             pubDate: moment(`${sales.year}-${sales.month}-${sales.day}`),
@@ -74,8 +75,7 @@ class SalesDialog extends React.Component<Props, State> {
         sales.totalAmount = +(values.totalAmount);
 
         if (isModify) {
-          dataIoStore
-            .qUpdateSalesAmount(modifyDataId, sales)
+          qUpdateSalesAmount(modifyDataId, sales)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
@@ -85,8 +85,7 @@ class SalesDialog extends React.Component<Props, State> {
             .catch(err => console.log(err.message));
         } else {
           ipcRenderer.send('message', 'run !isModify');
-          dataIoStore
-            .qAddSalesAmount(selectedComapnyId, sales)
+          qAddSalesAmount(selectedComapnyId, sales)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()

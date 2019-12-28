@@ -4,6 +4,7 @@ import { Modal, Button, Form, Input, Select } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { DataIoStore } from '../../../stores';
 import { Company } from '../../../entity';
+import { qModifyCompany, qAddComapny } from '../../../stores/quries';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -51,8 +52,7 @@ class CompanyDialog extends React.Component<Props, State> {
       if (!err) {
         // console.log('Received values of form: ', values);
         if (isModify) {
-          dataIoStore
-            .qModifyCompany(modifyData.id, values as Company)
+          qModifyCompany(modifyData.id, values as Company)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
@@ -61,8 +61,7 @@ class CompanyDialog extends React.Component<Props, State> {
             })
             .catch(err => console.log(err))
         } else {
-          dataIoStore
-            .qAddComapny(values as Company)
+          qAddComapny(values as Company)
             .then(() => {
               dataIoStore.globalUpdate()
               .then()

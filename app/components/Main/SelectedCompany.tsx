@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { inject, observer } from 'mobx-react';
 import { DataIoStore } from '../../stores';
+import { qDeleteDepositAmount, qDeleteSalesAmount } from '../../stores/quries';
 import { Card, Typography, Tabs, Table, Button, Tooltip, Modal } from 'antd';
 import { Sales, Deposit } from '../../entity';
 import { toCurrency } from '../../utils';
@@ -92,8 +93,7 @@ class SelectedCompany extends React.Component<Props, State> {
       content: '등록된 거래액이 삭제 됩니다?',
       onOk() {
         return new Promise((resolve, reject) => {
-          dataIoStore
-            .qDeleteSalesAmount(record.id)
+          qDeleteSalesAmount(record.id)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
@@ -115,8 +115,7 @@ class SelectedCompany extends React.Component<Props, State> {
       content: '등록된 입금액이 삭제 됩니다?',
       onOk() {
         return new Promise((resolve, reject) => {
-          dataIoStore
-            .qDeleteDepositAmount(record.id)
+          qDeleteDepositAmount(record.id)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
@@ -163,9 +162,9 @@ class SelectedCompany extends React.Component<Props, State> {
                   onClick={this.openDepositDialog}
                   style={{marginLeft: '.5rem'}} />
               </Tooltip>
-              <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
+              {/* <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
                 <Button type='primary' shape='circle' icon='download' size='default' style={{marginLeft: '.5rem'}} />
-              </Tooltip>
+              </Tooltip> */}
             </div>
           }
         >

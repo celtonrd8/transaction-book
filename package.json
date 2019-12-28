@@ -55,7 +55,7 @@
   },
   "main": "./app/main.prod.js",
   "build": {
-    "productName": "ElectronReact",
+    "productName": "TransactionBook",
     "appId": "org.develar.ElectronReact",
     "files": [
       "app/dist/",

@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-react';
 import { Modal, Button, Form, Input, DatePicker } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
 import { DataIoStore } from '../../../stores';
+import { qGetDepositById, qAddDepositAmount, qUpdateDepositAmount } from '../../../stores/quries';
 import { Deposit } from '../../../entity';
 import * as  moment from 'moment';
 
@@ -37,10 +38,10 @@ class DepositDialog extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    // const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const { form, modifyDataId, isModify } = this.props;
     if (isModify) {
-      dataIoStore.qGetDepositById(modifyDataId)
+        qGetDepositById(modifyDataId)
         .then((deposit) => {
           form.setFieldsValue({
             depositDate: moment(`${deposit.year}-${deposit.month}-${deposit.day}`),
@@ -70,8 +71,7 @@ class DepositDialog extends React.Component<Props, State> {
         // deposit.balanceAmount = +(values.balanceAmount);
 
         if (isModify) {
-          dataIoStore
-            .qUpdateDepositAmount(modifyDataId, deposit)
+            qUpdateDepositAmount(modifyDataId, deposit)
             .then(() => {
               dataIoStore.globalUpdate()
                 .then()
@@ -80,8 +80,7 @@ class DepositDialog extends React.Component<Props, State> {
             })
             .catch(err => console.log(err.message));
         } else {
-          dataIoStore
-          .qAddDepositAmount(selectedComapnyId, deposit)
+          qAddDepositAmount(selectedComapnyId, deposit)
           .then(() => {
             dataIoStore.globalUpdate()
               .then()

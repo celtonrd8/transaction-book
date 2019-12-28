@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { inject, observer } from 'mobx-react';
 import { DataIoStore } from '../../stores';
+import { qDeleteCompany } from '../../stores/quries';
+import { toEachCompanySales } from '../../stores/logics';
 import { Card, Table, Icon, Input, Button, Tooltip, Modal, Typography } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination'
 import Highlighter from 'react-highlight-words';
 import { Company } from '../../entity';
 import CompanyDialog from './Dialogs/CompanyDialog';
-// import './CompanyList.scss';
+import ToAllCompanyDialog from './Dialogs/ToAllCompanyDialog';
 
 const { Text } = Typography;
 const confirm = Modal.confirm;
@@ -17,14 +19,17 @@ const cardHeaderSt: React.CSSProperties = {
 }
 
 interface Props {
+
 }
 
 interface State {
   searchText: string;
   pagination: PaginationConfig;
   isCompanyDialog: boolean;
+  isToAllCompanyDialog: boolean;
   isModify: boolean;
   modifyData: Company;
+  selectedRowKeys: string[];
  }
 
 @inject('dataIoStore')
@@ -39,8 +44,10 @@ class CompanyList extends React.Component<Props, State> {
       searchText: '',
       pagination: {},
       isCompanyDialog: false,
+      isToAllCompanyDialog: false,
       isModify: false,
       modifyData: null,
+      selectedRowKeys: [],
     }
   }
 
@@ -49,8 +56,8 @@ class CompanyList extends React.Component<Props, State> {
     const pagination = { ...this.state.pagination };
     pagination.total = dataIoStore.totalCount;
     pagination.showSizeChanger = true;
-    pagination.pageSize = 25;
-    pagination.pageSizeOptions = ['25', '50', '100'];
+    pagination.pageSize = 100;
+    pagination.pageSizeOptions = ['50', '100', '200'];
     pagination.style = {marginRight: '1.5rem' };
     this.setState({pagination: pagination});
   }
@@ -115,6 +122,8 @@ class CompanyList extends React.Component<Props, State> {
 
   openCompanyDialog = () => { this.setState({isCompanyDialog: true}) };
   closeCompanyDialog = () => { this.setState({isCompanyDialog: false, isModify: false}) };
+  openToAllCompanyDialog = () => { this.setState({isToAllCompanyDialog: true}) };
+  closeToAllCompanyDialog = () => { this.setState({isToAllCompanyDialog: false}) };
 
   deleteCompanyConfirm = (record: Company) => {
     // console.log(record);
@@ -124,16 +133,15 @@ class CompanyList extends React.Component<Props, State> {
       content: '등록된 업체가 삭제 됩니다?',
       onOk() {
         return new Promise((resolve, reject) => {
-          dataIoStore
-            .qDeleteCompany(record.id)
-            .then(() => {
-              dataIoStore
-                .globalUpdate()
-                .then()
-                .catch(err => {throw err});
-              resolve();
-            })
-            .catch(() => reject());
+          qDeleteCompany(record.id)
+          .then(() => {
+            dataIoStore
+              .globalUpdate()
+              .then()
+              .catch(err => {throw err});
+            resolve();
+          })
+          .catch(() => reject());
         }).catch(() => console.log('Oops errors!'));
       },
       onCancel() {},
@@ -154,12 +162,33 @@ class CompanyList extends React.Component<Props, State> {
     dataIoStore.setSelectedComapnyId(record.id);
   }
 
+
+  getSelectedCompanySales = () => {
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    const currentCompany = dataIoStore.getCurrentCompanyList();
+    const selected = currentCompany.filter(company => this.state.selectedRowKeys.includes(`${company.id}`));
+    toEachCompanySales(selected).then();
+  }
+
+  rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      // console.log(selectedRowKeys);
+      // console.log(toJS(selectedRows));
+      this.setState({ selectedRowKeys: selectedRowKeys });
+    },
+    getCheckboxProps: record => ({
+      disabled: record.name === 'Disabled User', // Column configuration not to be checked
+      name: record.name,
+    }),
+  }
+
   render() {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const companyList = dataIoStore.companyList;
-    const { pagination, isCompanyDialog, isModify, modifyData } = this.state;
+    const { pagination, isCompanyDialog, isToAllCompanyDialog, isModify, modifyData, selectedRowKeys } = this.state;
 
-    const columns = [{
+    let columns = [{
       width: '14%',
       dataIndex: 'companyName',
       key: 'companyName',
@@ -242,21 +271,37 @@ class CompanyList extends React.Component<Props, State> {
                   onClick={this.openCompanyDialog}
                 />
               </Tooltip>
-              <Tooltip placement='bottomLeft' title='엑셀파일 출력'>
+              <Tooltip placement='bottomLeft' title='엑셀 파일저장(모든업체 월별 운송료)'>
                 <Button
                   type='primary'
                   shape='circle'
-                  icon='download'
+                  icon='file-excel'
                   size={'default'}
                   style={{marginLeft: '.5rem'}}
+                  onClick={this.openToAllCompanyDialog}
+                  // onClick={this.createCompanyExcelFile}
                 />
               </Tooltip>
+              <Tooltip placement='bottomLeft' title='엑셀 파일저장(외상매출 현황)'>
+                <Button
+                  type='primary'
+                  shape='circle'
+                  icon='line-chart'
+                  size={'default'}
+                  style={{marginLeft: '.5rem'}}
+                  disabled={selectedRowKeys.length === 0}
+                  onClick={this.getSelectedCompanySales}
+                  // onClick={this.openToAllCompanyDialog}
+                  // onClick={this.createCompanyExcelFile}
+                />
+            </Tooltip>
             </div>
           }
         >
           <Table
             size='middle'
-            rowKey={record => `${record.id}`}
+            rowKey={record => record.key}
+            rowSelection={this.rowSelection}
             columns={columns}
             dataSource={companyList}
             pagination={pagination}
@@ -272,6 +317,14 @@ class CompanyList extends React.Component<Props, State> {
             close={this.closeCompanyDialog}
             isModify={isModify}
             modifyData={isModify ? modifyData : null}
+          />
+        }
+
+        { isToAllCompanyDialog &&
+          <ToAllCompanyDialog
+            title={'엑셀파일 저장 (모든업체 월별 운송료)'}
+            visible={isToAllCompanyDialog}
+            close={this.closeToAllCompanyDialog}
           />
         }
       </>
