@@ -276,7 +276,7 @@ class SelectedCompany extends React.Component<Props, State> {
                         key: `${item.id}`,
                         id: item.id,
                         date: `${item.year}년 ${item.month}월 ${item.day}일`,
-                        originMonth: item.originMonth,
+                        originMonth: `${item.originYear}년 ${item.originMonth}월`,
                         depositAmount: `${toCurrency(item.depositAmount)}원`,
                         // balanceAmount: `${toCurrency(item.balanceAmount)}원`,
                       }

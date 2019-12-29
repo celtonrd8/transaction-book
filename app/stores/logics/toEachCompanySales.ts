@@ -46,7 +46,6 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
         {key: 'balance', width: 12},
       ];
 
-
     });
 
     const selectedPath = dialog.showSaveDialog({
@@ -56,6 +55,7 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
         { name: 'Excel', extensions: ['xlsx']}
       ]
     });
+
     await workbook.xlsx.writeFile(selectedPath);
 
   } catch (e) {

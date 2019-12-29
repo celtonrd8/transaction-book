@@ -35,7 +35,10 @@ export class Deposit {
   @Column({type: 'int', default: 0})
   public day: number;
 
-  @Column({type: 'varchar', default: ''})
+  @Column({type: 'int', default: ''})
+  public originYear: number;
+
+  @Column({type: 'int', default: ''})
   public originMonth: number;
 
   @Column({type: 'int', default: 0})

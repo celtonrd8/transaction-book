@@ -96,7 +96,8 @@ export default class TotalAmount extends React.Component<Props, State> {
                         >
                           총 미수금 : {
                             yearlyTotal.yearlyDepositTotal > yearlyTotal.yearlySalesTotal ? '없음' :
-                            toCurrency(Math.abs(yearlyTotal.yearlySalesTotal - yearlyTotal.yearlyDepositTotal))}원
+                            `${toCurrency(Math.abs(yearlyTotal.yearlySalesTotal - yearlyTotal.yearlyDepositTotal))}원`
+                          }
                         </Text>
                       </CColumn>
                     </CRow>

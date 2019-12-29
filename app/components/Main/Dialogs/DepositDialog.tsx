@@ -2,12 +2,12 @@ import * as React from 'react';
 import { inject, observer } from 'mobx-react';
 import { Modal, Button, Form, Input, DatePicker } from 'antd';
 import { FormComponentProps } from 'antd/lib/form/Form';
-import { DataIoStore } from '../../../stores';
-import { qGetDepositById, qAddDepositAmount, qUpdateDepositAmount } from '../../../stores/quries';
+import { qGetDepositById, qUpdateDepositAmount, qAddDepositAmount } from '../../../stores/quries';
 import { Deposit } from '../../../entity';
+import { DataIoStore } from '../../../stores';
 import * as  moment from 'moment';
 
-// const { TextArea } = Input;
+const { MonthPicker } = DatePicker;
 
 const formItemLayout = {
   labelCol: {
@@ -45,7 +45,7 @@ class DepositDialog extends React.Component<Props, State> {
         .then((deposit) => {
           form.setFieldsValue({
             depositDate: moment(`${deposit.year}-${deposit.month}-${deposit.day}`),
-            originMonth: deposit.originMonth,
+            originDate: moment(`${deposit.originYear}-${deposit.originMonth}`),
             depositAmount: deposit.depositAmount,
           });
         })
@@ -54,21 +54,21 @@ class DepositDialog extends React.Component<Props, State> {
   }
 
   handleSubmit = (e) => {
-    // const { close, isModify, modifyData } = this.props;
     const { close, isModify, modifyDataId } = this.props;
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
     const selectedComapnyId = dataIoStore.selectedComapnyId;
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
+      console.log(values);
       if (!err) {
         // console.log('Received values of form: ', values);
         const deposit = new Deposit();
         deposit.year = +(values.depositDate.year());
         deposit.month = +(values.depositDate.month() + 1);
         deposit.day = +(values.depositDate.date());
-        deposit.originMonth = values.originMonth;
+        deposit.originYear = values.originDate.year();
+        deposit.originMonth = values.originDate.month() + 1;
         deposit.depositAmount = +(values.depositAmount);
-        // deposit.balanceAmount = +(values.balanceAmount);
 
         if (isModify) {
             qUpdateDepositAmount(modifyDataId, deposit)
@@ -89,9 +89,20 @@ class DepositDialog extends React.Component<Props, State> {
           })
           .catch(err => {throw err});
         }
+
       }
     });
   }
+  onMonthChangeDate = (date, dateString) => {
+    // console.log(date);
+    // console.log(dateString);
+    // const sep = dateString.split('-');
+    // if (Array.isArray(sep) && sep.length === 2) {
+    //     // selectedYear: parseInt(sep[0]),
+    //     // selectedMonth: parseInt(sep[1]),
+    // }
+  }
+
   render() {
     const { title, visible, close, isModify } = this.props;
     const { getFieldDecorator } = this.props.form;
@@ -105,6 +116,7 @@ class DepositDialog extends React.Component<Props, State> {
           footer={[null, null]}
         >
           <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+
             <Form.Item label='입금일'>
               {getFieldDecorator('depositDate', {
                 rules: [{ type:'object', required: true, message: '발행일 입력 필수', whitespace: true }]
@@ -115,9 +127,15 @@ class DepositDialog extends React.Component<Props, State> {
 
 
             <Form.Item label='월분'>
-              {getFieldDecorator('originMonth', {
-                rules: [{ required: false, whitespace: true }]
-              })(<Input placeholder='입금일 입력' />)}
+              {getFieldDecorator('originDate', {
+                rules: [{ type:'object', required: true, whitespace: true }]
+              })(
+                <MonthPicker
+                  placeholder="날짜 선택"
+                  // onChange={this.onMonthChangeDate}
+                  style={{ width: '100%' }}
+                />
+              )}
             </Form.Item>
 
             <Form.Item label='입금액'>
