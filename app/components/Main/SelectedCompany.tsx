@@ -55,7 +55,8 @@ class SelectedCompany extends React.Component<Props, State> {
   getSelectedCompanyData = () => {
     // console.log('getSelectedCompanyData');
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
-    const comapnyList = dataIoStore.companyList;
+    // const comapnyList = dataIoStore.companyList;
+    const comapnyList = dataIoStore.getCurrentCompanyList();
     const selectedComapnyId = dataIoStore.selectedComapnyId;
     let sumAllSales = 0;
     let sumAllDeposit = 0;

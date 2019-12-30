@@ -118,10 +118,10 @@ class CompanyDialog extends React.Component<Props, State> {
               })(<Input placeholder='계정번호 입력' />)}
             </Form.Item>
 
-            <Form.Item label='입금일'>
+            <Form.Item label='입금(예정)일'>
               {getFieldDecorator('depositDate', {
-                rules: [{ required: false, message: '입금일 입력', whitespace: true }]
-              })(<Input placeholder='입금일 입력' />)}
+                rules: [{ required: false, message: '입금(예정)일 입력', whitespace: true }]
+              })(<Input placeholder='입금(예정)일 입력' />)}
             </Form.Item>
 
             <Form.Item label='메모'>

@@ -92,9 +92,13 @@ export class DataIoStore {
   public globalUpdate = async () => {
     try {
       const result = await qGetAllCompany();
-      await this.updateCompanyList(result);
+      if (result) {
+        this.updateCompanyList(result);
+      }
       const allYears = await qGetAllYears();
-      this._updateYearlyToalAmount(allYears.map(item => item.year));
+      if (allYears) {
+        this._updateYearlyToalAmount(allYears.map(item => item.year));
+      }
       return await true;
     } catch(e) {
       throw e;

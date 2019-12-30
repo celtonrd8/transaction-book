@@ -3,14 +3,21 @@ import { Company, Sales, Deposit } from "../../entity";
 
 export async function qGetAllCompany() {
   try {
-    return await getConnection()
+    const companyList = await getConnection()
       .getRepository(Company)
       .createQueryBuilder("company")
       .leftJoinAndSelect("company.salesList", "salesList")
       .leftJoinAndSelect("company.depositList", "depositList")
       .orderBy("company.companyName", "ASC")
       .getMany();
-
+    
+    if (companyList) {
+      return companyList.map(company => {
+        company.salesList = company.salesList.sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
+        company.depositList = company.depositList.sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
+        return company;
+      });
+    }
   } catch(e) {
     throw e;
   }

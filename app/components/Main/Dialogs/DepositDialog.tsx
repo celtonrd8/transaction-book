@@ -59,7 +59,7 @@ class DepositDialog extends React.Component<Props, State> {
     const selectedComapnyId = dataIoStore.selectedComapnyId;
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
-      console.log(values);
+      // console.log(values);
       if (!err) {
         // console.log('Received values of form: ', values);
         const deposit = new Deposit();
@@ -93,14 +93,24 @@ class DepositDialog extends React.Component<Props, State> {
       }
     });
   }
-  onMonthChangeDate = (date, dateString) => {
-    // console.log(date);
+
+  originDateValidator = async (rule, value, callback) => {
+    // console.log(rule);
+    // console.log(value);
+    // console.log(callback);
+    const dateString = value.format('YYYY-M');
     // console.log(dateString);
-    // const sep = dateString.split('-');
-    // if (Array.isArray(sep) && sep.length === 2) {
-    //     // selectedYear: parseInt(sep[0]),
-    //     // selectedMonth: parseInt(sep[1]),
-    // }
+    
+    const dataIoStore = this.props['dataIoStore'] as DataIoStore;
+    const companyList = dataIoStore.getCurrentCompanyList();
+    const selectedComapnyId = dataIoStore.selectedComapnyId;
+
+    const selectedCompany = companyList.find(company => company.id === selectedComapnyId);
+    const sameDate = selectedCompany.salesList.find(sale => `${sale.year}-${sale.month}` === dateString);
+    if (typeof sameDate === 'undefined') {
+      callback('해당 월에 매출 기록이 없습니다.')
+    };
+
   }
 
   render() {
@@ -128,11 +138,13 @@ class DepositDialog extends React.Component<Props, State> {
 
             <Form.Item label='월분'>
               {getFieldDecorator('originDate', {
-                rules: [{ type:'object', required: true, whitespace: true }]
+                rules: [
+                  { type:'object', required: true, whitespace: true },
+                  { validator: this.originDateValidator}
+                ]
               })(
                 <MonthPicker
                   placeholder="날짜 선택"
-                  // onChange={this.onMonthChangeDate}
                   style={{ width: '100%' }}
                 />
               )}

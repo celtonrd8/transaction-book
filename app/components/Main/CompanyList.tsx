@@ -57,7 +57,7 @@ class CompanyList extends React.Component<Props, State> {
     pagination.total = dataIoStore.totalCount;
     pagination.showSizeChanger = true;
     pagination.pageSize = 100;
-    pagination.pageSizeOptions = ['50', '100', '200'];
+    pagination.pageSizeOptions = ['50', '100', '150', '200', '300'];
     pagination.style = {marginRight: '1.5rem' };
     this.setState({pagination: pagination});
   }
@@ -185,11 +185,12 @@ class CompanyList extends React.Component<Props, State> {
 
   render() {
     const dataIoStore = this.props['dataIoStore'] as DataIoStore;
-    const companyList = dataIoStore.companyList;
+    // const companyList = dataIoStore.companyList;
+    const companyList = dataIoStore.getCurrentCompanyList();
     const { pagination, isCompanyDialog, isToAllCompanyDialog, isModify, modifyData, selectedRowKeys } = this.state;
 
     let columns = [{
-      width: '14%',
+      width: '15%',
       dataIndex: 'companyName',
       key: 'companyName',
       title: '업체명',
@@ -200,7 +201,7 @@ class CompanyList extends React.Component<Props, State> {
         </div>
       )
     }, {
-      width: '14%',
+      width: '13%',
       dataIndex: 'transactionState',
       key: 'transactionState',
       title: '거래상태',
@@ -212,8 +213,8 @@ class CompanyList extends React.Component<Props, State> {
       },
     },
     { width: '14%', dataIndex: 'phone', title: '연락처', key: 'phone' },
-    { width: '14%', dataIndex: 'accountNumber', title: '계정번호', key: 'accountNumber'},
-    { width: '14%', dataIndex: 'depositDate', title: '입금일', key: 'depositDate' },
+    { width: '10%', dataIndex: 'accountNumber', title: '계정번호', key: 'accountNumber'},
+    { width: '13%', dataIndex: 'depositDate', title: '입금(예정)일', key: 'depositDate' },
     {
       dataIndex: 'memo',
       key: 'memo',
