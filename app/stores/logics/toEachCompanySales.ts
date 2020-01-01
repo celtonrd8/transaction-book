@@ -43,6 +43,19 @@ const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[]) => {
 
 export async function toEachCompanySales(selectedCompany: Company[]) {
   try {
+
+    const selectedPath = dialog.showSaveDialog({
+      title: '엑셀파일 저장 위치 선택',
+      defaultPath: 'c:\\',
+      filters: [
+        { name: 'Excel', extensions: ['xlsx']}
+      ]
+    });
+
+    if (!selectedPath) {
+      return;
+    }
+
     // console.log(selectedCompany)
     const workbook = new Excel.Workbook();
     workbook.creator = 'SeHan';
@@ -129,7 +142,7 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
       sheet.mergeCells(`D${lastRow + 3}:H${lastRow + 3}`);
       sheet.getCell(`D${lastRow + 3}`).alignment = { vertical: 'middle', horizontal: 'center' };
       sheet.getCell(`D${lastRow + 3}`).font = { name: 'Malgun Gothic', bold: true, size: 12 };
-      sheet.getCell(`D${lastRow + 3}`).numFmt = '#,###'
+      sheet.getCell(`D${lastRow + 3}`).numFmt = '#,###';
 
       sheet.eachRow((row, rowNumber) => {
         if (rowNumber < 3) return;
@@ -171,15 +184,8 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
 
     });
 
-    const selectedPath = dialog.showSaveDialog({
-      title: '엑셀파일 저장 위치 선택',
-      defaultPath: 'c:\\',
-      filters: [
-        { name: 'Excel', extensions: ['xlsx']}
-      ]
-    });
-
     await workbook.xlsx.writeFile(selectedPath);
+
 
   } catch (e) {
     throw e;

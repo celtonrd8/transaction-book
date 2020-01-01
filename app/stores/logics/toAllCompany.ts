@@ -6,6 +6,18 @@ const { dialog } = Electron.remote;
 // export function toAllCompany(companyList: Company[], selectYear: number, selectMonth: number) {
 export async function toAllCompany(companyList: Company[], selectedYear: number, selectedMonth: number) {
   try {
+
+    const selectedPath = dialog.showSaveDialog({
+      title: '엑셀파일 저장 위치 선택',
+      defaultPath: 'c:\\',
+      filters: [
+        { name: 'Excel', extensions: ['xlsx']}
+      ]
+    });
+
+    if (!selectedPath) {
+      return;
+    }
     // console.log(companyList);
     const year = selectedYear;
     const month = selectedMonth;
@@ -13,7 +25,7 @@ export async function toAllCompany(companyList: Company[], selectedYear: number,
     const workbook = new Excel.Workbook();
     workbook.creator = 'SeHan';
 
-    const sheet = workbook.addWorksheet(`${year}-${month}`);
+    const sheet = workbook.addWorksheet(`${year}년 ${month}월`);
 
     // sheet.addRow({}).commit();
     // sheet.getRow(1).getCell(8).value =
@@ -38,7 +50,7 @@ export async function toAllCompany(companyList: Company[], selectedYear: number,
       sheet.getCell(`${alphabet}2`).fill = {
         type: 'pattern',
         pattern:'solid',
-        fgColor:{ argb:'c0d0eb' }
+        fgColor:{ argb:'00c0d0eb' }
       }
     });
 
@@ -69,6 +81,28 @@ export async function toAllCompany(companyList: Company[], selectedYear: number,
       }
     });
 
+    const lastRow = sheet.rowCount;
+    sheet.getCell(`A${lastRow+1}`).value = '합계';
+    sheet.getCell(`C${lastRow+1}`).value = { formula: `SUM(C3:C${lastRow})`, result: 0};
+    sheet.getCell(`D${lastRow+1}`).value = { formula: `SUM(D3:D${lastRow})`, result: 0};
+    sheet.getCell(`E${lastRow+1}`).value = { formula: `SUM(E3:E${lastRow})`, result: 0};
+
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map((alphabet) => {
+      // sheet.getCell(`${alphabet}${lastRow}`).numFmt = '#,###';
+      sheet.getCell(`${alphabet}${lastRow+1}`).fill = {
+        type: 'pattern',
+        pattern:'solid',
+        fgColor:{ argb:'00f7d794' }
+      };
+      sheet.getCell(`${alphabet}${lastRow+1}`).border = {
+        top: {style:'thin'},
+        left: {style:'thin'},
+        bottom: {style:'thin'},
+        right: {style:'thin'}
+      }
+    });
+
+
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return;
       row.eachCell((cell) => {
@@ -91,26 +125,15 @@ export async function toAllCompany(companyList: Company[], selectedYear: number,
 
       if (rowNumber > 2) {
         ['C', 'D', 'E'].map(alphabet => {
-          sheet.getCell(`${alphabet}${rowNumber}`).numFmt = '#,###'
+          sheet.getCell(`${alphabet}${rowNumber}`).numFmt = '#,###';
+          sheet.getCell(`${alphabet}${rowNumber}`).alignment = { vertical: 'middle', horizontal: 'right' };
         });
       }
 
     });
 
-    // const maxLength = sheet.rowCount;
-    // console.log(maxLength);
 
-    // console.log(sheet);
-    const selectedPath = dialog.showSaveDialog({
-      title: '엑셀파일 저장 위치 선택',
-      defaultPath: 'c:\\',
-      filters: [
-        { name: 'Excel', extensions: ['xlsx']}
-      ]
-    });
-
-    // console.log(selectedPath);
-    return await workbook.xlsx.writeFile(selectedPath);
+    await workbook.xlsx.writeFile(selectedPath);
 
   } catch (e) {
     throw e;
