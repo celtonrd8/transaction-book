@@ -5,12 +5,13 @@ import * as Electron from 'electron';
 
 const { dialog } = Electron.remote;
 
-const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[]) => {
+const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[], balance: number[]) => {
   // const refDate = moment(`${deposits[iOrder].originYear}-${deposits[iOrder].originMonth}`).endOf('month').format('YYYY-MM-DD');
   const refOriginDate = `${deposits[iOrder].originYear}-${deposits[iOrder].originMonth}`;
 
   let depositBalance = 0;
   let sameMonthDeposit = 0;
+
   deposits.forEach(deposit => {
     if (`${deposit.originYear}-${deposit.originMonth}` === refOriginDate) {
       depositBalance += deposit.depositAmount;
@@ -32,12 +33,17 @@ const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[]) => {
     const refDate = `${deposits[iOrder].year}-${deposits[iOrder].month}-${deposits[iOrder].day}`;
     
     if (`${max.year}-${max.month}-${max.day}` === refDate) {
-      return salesBalance - depositBalance;
+      const result =  salesBalance - depositBalance;
+      balance.push(result);
+      return result;
     } else {
+      balance.push(0);
       return 0;
     }
   } else {
-    return salesBalance - depositBalance;
+    const result = salesBalance - depositBalance;
+    balance.push(result);
+    return result;
   }
 }
 
@@ -99,13 +105,15 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
 
       const salesLen = company.salesList.length;
       const depositLen = company.depositList.length;
-      const maxLen = salesLen > depositLen ? salesLen : depositLen;
+      const maxLen = salesLen >= depositLen ? salesLen : depositLen; // always bigger salesLen than deosit
 
       const sales = company.salesList;
         // .sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
 
       const deposits = company.depositList;
         // .sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
+
+      let depositBalance: number[] = [];
 
       for (let i = 0; i < maxLen; i++) {
         sheet.addRow({
@@ -117,28 +125,50 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
           'depositDate':depositLen > i ? `${deposits[i].year}년 ${deposits[i].month}월 ${deposits[i].day}일` : '',
           'originDate':depositLen > i ? `${deposits[i].originYear}년 ${deposits[i].originMonth}월` : '',
           'depositAmount':depositLen > i ? deposits[i].depositAmount : null,
-          'balance': depositLen > i ? calcBalance(i, deposits, sales) : null,
+          'balance': depositLen > i ? calcBalance(i, deposits, sales, depositBalance) : null,
         });
       }
-  
+
       const lastRow = sheet.rowCount;
+
+      // const s = a.reduce((acc, val) => { return acc + val.dd; }, 0);
+      const salesSum = sales.reduce((acc, val) => { return acc + val.totalAmount; }, 0);
+      const depositSum = deposits.reduce((acc, val) => { return acc + val.depositAmount; }, 0);
+      const balanceSum = depositBalance.reduce((acc, val) => { return acc + val; }, 0);
+      const diffBalance = salesSum - depositSum;
+
+      const diff = diffBalance - balanceSum;
+      // console.log("diff : " + diffBalance);
+      // console.log("diffBalance - balanceSum : " + diff);
+
+      
+      if (diff != 0) {
+        // console.log('if');
+        if (depositLen < salesLen) {
+          // console.log('depositLen < salesLen')
+          sheet.getCell(`H${(4 + depositLen + 1)}`).value = diff;
+        } else {
+          // console.log('depositLen >= salesLen')
+          sheet.getCell(`H${lastRow + 1}`).value = diff;
+        }
+      }
 
       sheet.getCell(`A${lastRow + 2}`).value = '총합계';
       sheet.getCell(`E${lastRow + 2}`).value = '총합계';
 
-      sheet.getCell(`B${lastRow + 2}`).value = { formula: `SUM(B5:B${lastRow})`, result: 0};
-      sheet.getCell(`C${lastRow + 2}`).value = { formula: `SUM(C5:C${lastRow})`, result: 0};
-      sheet.getCell(`D${lastRow + 2}`).value = { formula: `SUM(D5:D${lastRow})`, result: 0};
-      sheet.getCell(`G${lastRow + 2}`).value = { formula: `SUM(G5:G${lastRow})`, result: 0};
-      sheet.getCell(`H${lastRow + 2}`).value = { formula: `SUM(H5:H${lastRow})`, result: 0};
-    
-  
+      sheet.getCell(`B${lastRow + 2}`).value = { formula: `SUM(B5:B${lastRow})`, result: 0 };
+      sheet.getCell(`C${lastRow + 2}`).value = { formula: `SUM(C5:C${lastRow})`, result: 0 };
+      sheet.getCell(`D${lastRow + 2}`).value = { formula: `SUM(D5:D${lastRow})`, result: 0 };
+      sheet.getCell(`G${lastRow + 2}`).value = { formula: `SUM(G5:G${lastRow})`, result: 0 };
+      sheet.getCell(`H${lastRow + 2}`).value = { formula: `SUM(H5:H${lastRow})`, result: 0 };
+      
       sheet.getCell(`A${lastRow + 3}`).value = '미수금 총액';
       sheet.mergeCells(`A${lastRow + 3}:C${lastRow + 3}`);
       sheet.getCell(`A${lastRow + 3}`).alignment = { vertical: 'middle', horizontal: 'center' };
       sheet.getCell(`A${lastRow + 3}`).font = { name: 'Malgun Gothic', bold: true, size: 12 };
 
-      sheet.getCell(`D${lastRow + 3}`).value = sheet.getCell(`H${lastRow + 2}`).value
+      // sheet.getCell(`D${lastRow + 3}`).value = sheet.getCell(`H${lastRow + 2}`).value
+      sheet.getCell(`D${lastRow + 3}`).value = { formula: `D${lastRow + 2} - G${lastRow + 2}`, result: 0 };
       sheet.mergeCells(`D${lastRow + 3}:H${lastRow + 3}`);
       sheet.getCell(`D${lastRow + 3}`).alignment = { vertical: 'middle', horizontal: 'center' };
       sheet.getCell(`D${lastRow + 3}`).font = { name: 'Malgun Gothic', bold: true, size: 12 };
