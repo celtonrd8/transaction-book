@@ -11,10 +11,10 @@ export async function qGetAllCompany() {
       .orderBy("company.companyName", "ASC")
       .getMany();
     
-    if (companyList) {
+    if (companyList) {     
       return companyList.map(company => {
-        company.salesList = company.salesList.sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
-        company.depositList = company.depositList.sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
+        company.salesList = company.salesList.sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : -1);
+        company.depositList = company.depositList.sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : -1);
         return company;
       });
     }
@@ -80,13 +80,13 @@ export async function qAddSalesAmount (companyId: number, sales: Sales) {
 }
 
 export async function qUpdateSalesAmount (salesId: number, sales: Sales) {
-try {
-  return await getConnection()
-    .getRepository(Sales)
-    .update({id: salesId}, sales);
-} catch (e) {
-  throw e;
-}
+  try {
+    return await getConnection()
+      .getRepository(Sales)
+      .update({id: salesId}, sales);
+  } catch (e) {
+    throw e;
+  }
 }
 
 export async function qDeleteSalesAmount (salesId: number) {

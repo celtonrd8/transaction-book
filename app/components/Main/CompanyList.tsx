@@ -189,27 +189,34 @@ class CompanyList extends React.Component<Props, State> {
     const companyList = dataIoStore.getCurrentCompanyList();
     const { pagination, isCompanyDialog, isToAllCompanyDialog, isModify, modifyData, selectedRowKeys } = this.state;
 
-    let columns = [{
+    let columns = [
+    { width: '5%', dataIndex: 'order', title: '번호', key: 'order' },
+    {
       width: '15%',
       dataIndex: 'companyName',
       key: 'companyName',
       title: '업체명',
       ...this.getColumnSearchProps('companyName'),
-      render: (text: string, record: Company) => (
-        <div className="clCompanyLink" onClick={() => this.selectCompany(record)}>
-          {text}
-        </div>
-      )
+      render: (text: string, record: Company) => {
+        const salesTotal = record.salesList.map(item => item.totalAmount).reduce((acc, val) => { return acc + val; }, 0);
+        const depositTotal = record.depositList.map(item => item.depositAmount).reduce((acc, val) => { return acc + val; }, 0);
+        const amount = salesTotal - depositTotal;
+
+        return (        
+          <div className="clCompanyLink" onClick={() => this.selectCompany(record)}>
+            <Text style={{color: amount >= 0 ? "#45aaf2" : "#fc5c65"}}>{text}</Text>
+          </div>
+      )}
     }, {
-      width: '13%',
+      width: '12%',
       dataIndex: 'transactionState',
       key: 'transactionState',
       title: '거래상태',
       render: text => {
         if (text === 'ON') return (<Text>거래중</Text>)
-        else if (text === 'OFF') return (<Text style={{color: '#EA2027'}}>거래중지(미반영)</Text>)
-        else if (text === 'PAUSE') return (<Text style={{color: '#D980FA'}}>거래중지(반영)</Text>)
-        else return ''
+        else if (text === 'OFF') return (<Text style={{color: '#EA2027'}}>거래중지(미반영)</Text>);
+        else if (text === 'PAUSE') return (<Text style={{color: '#D980FA'}}>거래중지(반영)</Text>);
+        else return '';
       },
     },
     { width: '14%', dataIndex: 'phone', title: '연락처', key: 'phone' },
@@ -304,7 +311,12 @@ class CompanyList extends React.Component<Props, State> {
             rowKey={record => record.key}
             rowSelection={this.rowSelection}
             columns={columns}
-            dataSource={companyList}
+            dataSource={companyList.map((company: Company, order: number) => {
+              return {
+                ...company,
+                order: `${order+1}`
+              }
+            })}
             pagination={pagination}
             scroll={{y: 'calc(100vh - 300px)'}}
             style={{height: 'calc(100vh - 200px)'}}

@@ -93,6 +93,7 @@ export class DataIoStore {
     try {
       const result = await qGetAllCompany();
       if (result) {
+        // console.log(result);
         this.updateCompanyList(result);
       }
       const allYears = await qGetAllYears();

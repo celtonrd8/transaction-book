@@ -1,24 +1,33 @@
 import { Company, Sales, Deposit } from '../../entity';
 import * as Excel from 'exceljs';
 import * as Electron from 'electron';
-// import * as moment from 'moment';
 
 const { dialog } = Electron.remote;
 
-const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[], balance: number[]) => {
+interface IStatus {
+  depositBalance: number[],
+  currentOriginDate: string,
+}
+
+const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[], status: IStatus) => {
   // const refDate = moment(`${deposits[iOrder].originYear}-${deposits[iOrder].originMonth}`).endOf('month').format('YYYY-MM-DD');
   const refOriginDate = `${deposits[iOrder].originYear}-${deposits[iOrder].originMonth}`;
+  
+  // 같은 달에 입금액이 여러개 있을 경우 첫번째 입금액에서 한번에 계산하고 이후에는 패스
+  if (status.currentOriginDate === refOriginDate) {
+    return null;
+  }
 
-  let depositBalance = 0;
+  // let depositBalance = 0;
   let sameMonthDeposit = 0;
-
   deposits.forEach(deposit => {
     if (`${deposit.originYear}-${deposit.originMonth}` === refOriginDate) {
-      depositBalance += deposit.depositAmount;
+      // depositBalance += deposit.depositAmount;
       sameMonthDeposit++;
     }
   });
 
+  // 같은 달에 거래액은 모두 묶어서 계산하기 위함
   let salesBalance = 0;
   sales.forEach(sale => {
     if (`${sale.year}-${sale.month}` === refOriginDate) {
@@ -27,22 +36,21 @@ const calcBalance = (iOrder: number, deposits: Deposit[], sales: Sales[], balanc
   });
 
   if (sameMonthDeposit > 1) {
-    const data = deposits.filter(deposit => `${deposit.originYear}-${deposit.originMonth}` === refOriginDate);
-    const max = data.reduce((p, c) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${c.year}-${c.month}-${c.day}`) ? p : c)
+    // 같은달에 입금액이 여러개 있을 경우 첫번째 날짜를 기록해둠
+    status.currentOriginDate = refOriginDate; 
+
+    // 중복이 있으므로 중복된 모든 데이터를 검색
+    const duplicatedDeposit = deposits.filter(deposit => `${deposit.originYear}-${deposit.originMonth}` === refOriginDate);
     
-    const refDate = `${deposits[iOrder].year}-${deposits[iOrder].month}-${deposits[iOrder].day}`;
-    
-    if (`${max.year}-${max.month}-${max.day}` === refDate) {
-      const result =  salesBalance - depositBalance;
-      balance.push(result);
-      return result;
-    } else {
-      balance.push(0);
-      return 0;
-    }
+    const duplicatedDepositValue = duplicatedDeposit.map(deposit => deposit.depositAmount); // 숫자 배열 추출
+    let duplicatedDepositBalance = duplicatedDepositValue.reduce((acc, val) => { return acc + val; }, 0); // 숫자배열 합계
+
+    const result =  salesBalance - duplicatedDepositBalance;
+    status.depositBalance.push(result); // 잔액 기록
+    return result;
   } else {
-    const result = salesBalance - depositBalance;
-    balance.push(result);
+    const result = salesBalance - deposits[iOrder].depositAmount;
+    status.depositBalance.push(result); // 잔액 기록
     return result;
   }
 }
@@ -113,7 +121,12 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
       const deposits = company.depositList;
         // .sort((p, n) => new Date(`${p.year}-${p.month}-${p.day}`) > new Date(`${n.year}-${n.month}-${n.day}`) ? 1 : 0);
 
-      let depositBalance: number[] = [];
+      // let depositBalance: number[] = [];
+      // let currentOriginDate: {} = {};
+      const status: IStatus = {
+        depositBalance: [],
+        currentOriginDate: '',
+      };
 
       for (let i = 0; i < maxLen; i++) {
         sheet.addRow({
@@ -125,7 +138,7 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
           'depositDate':depositLen > i ? `${deposits[i].year}년 ${deposits[i].month}월 ${deposits[i].day}일` : '',
           'originDate':depositLen > i ? `${deposits[i].originYear}년 ${deposits[i].originMonth}월` : '',
           'depositAmount':depositLen > i ? deposits[i].depositAmount : null,
-          'balance': depositLen > i ? calcBalance(i, deposits, sales, depositBalance) : null,
+          'balance': depositLen > i ? calcBalance(i, deposits, sales, status) : null,
         });
       }
 
@@ -134,14 +147,14 @@ export async function toEachCompanySales(selectedCompany: Company[]) {
       // const s = a.reduce((acc, val) => { return acc + val.dd; }, 0);
       const salesSum = sales.reduce((acc, val) => { return acc + val.totalAmount; }, 0);
       const depositSum = deposits.reduce((acc, val) => { return acc + val.depositAmount; }, 0);
-      const balanceSum = depositBalance.reduce((acc, val) => { return acc + val; }, 0);
+      const balanceSum = status.depositBalance.reduce((acc, val) => { return acc + val; }, 0);
       const diffBalance = salesSum - depositSum;
 
       const diff = diffBalance - balanceSum;
       // console.log("diff : " + diffBalance);
       // console.log("diffBalance - balanceSum : " + diff);
 
-      
+      // console.log(status.depositBalance);
       if (diff != 0) {
         // console.log('if');
         if (depositLen < salesLen) {

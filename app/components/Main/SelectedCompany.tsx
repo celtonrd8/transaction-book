@@ -195,10 +195,11 @@ class SelectedCompany extends React.Component<Props, State> {
                     scroll={{y: 'calc(100vh - 840px)'}}
                     style={{height: 'calc(100vh - 800px)'}}
                     columns={[
-                      { width: '25%', dataIndex: 'date', title: '발행일', key: 'date' },
-                      { width: '20%', dataIndex: 'supplyAmount', title: '공급액', key: 'supplyAmount' },
-                      { width: '20%', dataIndex: 'taxAmount', title: '세액', key: 'taxAmount' },
-                      { width: '20%', dataIndex: 'totalAmount', title: '총액', key: 'totalAmount' },
+                      { width: '8%', dataIndex: 'order', title: '번호', key: 'order' },
+                      { width: '24%', dataIndex: 'date', title: '발행일', key: 'date' },
+                      { width: '18%', dataIndex: 'supplyAmount', title: '공급액', key: 'supplyAmount' },
+                      { width: '18%', dataIndex: 'taxAmount', title: '세액', key: 'taxAmount' },
+                      { width: '18%', dataIndex: 'totalAmount', title: '총액', key: 'totalAmount' },
                       { title: '관리',
                         key: 'operation',
                         render: (record: Sales) => (
@@ -223,11 +224,12 @@ class SelectedCompany extends React.Component<Props, State> {
                         )
                       }
                     ]}
-                    dataSource={selectedCompany && (selectedCompany.salesList || []).map((item: Sales) => {
+                    dataSource={selectedCompany && (selectedCompany.salesList || []).map((item: Sales, order: number) => {
                       // console.log(item);
                       return {
                         key: `${item.id}`,
                         id: item.id,
+                        order: `${order + 1}`,
                         date: `${item.year}년 ${item.month}월 ${item.day}일`,
                         supplyAmount: `${toCurrency(item.supplyAmount)}원`,
                         taxAmount: `${toCurrency(item.taxAmount)}원`,
@@ -244,6 +246,7 @@ class SelectedCompany extends React.Component<Props, State> {
                     scroll={{y: 'calc(100vh - 840px)'}}
                     style={{height: 'calc(100vh - 800px)'}}
                     columns={[
+                      { width: '8%', dataIndex: 'order', title: '번호', key: 'order' },
                       { width: '25%', dataIndex: 'date', title: '입금일', key: 'date' },
                       { width: '20%', dataIndex: 'originMonth', title: '월분', key: 'originMonth' },
                       { width: '20%', dataIndex: 'depositAmount', title: '입금액', key: 'depositAmount' },
@@ -272,10 +275,11 @@ class SelectedCompany extends React.Component<Props, State> {
                         )
                       }
                     ]}
-                    dataSource={selectedCompany && (selectedCompany.depositList || []).map((item: Deposit) => {
+                    dataSource={selectedCompany && (selectedCompany.depositList || []).map((item: Deposit, order: number) => {
                       return {
                         key: `${item.id}`,
                         id: item.id,
+                        order: `${order + 1}`,
                         date: `${item.year}년 ${item.month}월 ${item.day}일`,
                         originMonth: `${item.originYear}년 ${item.originMonth}월`,
                         depositAmount: `${toCurrency(item.depositAmount)}원`,

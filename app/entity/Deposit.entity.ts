@@ -46,4 +46,5 @@ export class Deposit {
 
   // @Column({type: 'int', default: 0})
   // public balanceAmount: number;
+  
 }
