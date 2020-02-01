@@ -204,7 +204,7 @@ class CompanyList extends React.Component<Props, State> {
 
         return (        
           <div className="clCompanyLink" onClick={() => this.selectCompany(record)}>
-            <Text style={{color: amount >= 0 ? "#45aaf2" : "#fc5c65"}}>{text}</Text>
+            <Text style={{color: amount >= 0 ? "#fc5c65" : "#45aaf2"}}>{text}</Text>
           </div>
       )}
     }, {
