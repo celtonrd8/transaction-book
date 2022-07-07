@@ -270,7 +270,7 @@
     "mobx": "^5.9.4",
     "mobx-react": "^5.4.3",
     "mobx-react-router": "^4.0.7",
-    "moment": "2.24.0",
+    "moment": "2.29.4",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-highlight-words": "^0.16.0",
